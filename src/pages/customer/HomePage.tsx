@@ -1,0 +1,396 @@
+import React, { useEffect, useState } from 'react';
+import { ChevronRight, Star, Plus, X, Check, ChevronDown, HelpCircle } from 'lucide-react';
+import { useNavigate, Link } from 'react-router';
+import { productsApi, achievementsApi, reviewsApi } from '../../lib/api';
+import type { Category, Product, Achievement, StoreReview } from '../../lib/api';
+import { useCart } from '../../contexts/CartContext';
+import { SEO } from '../../components/SEO';
+
+export default function HomePage() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [bestsellers, setBestsellers] = useState<Product[]>([]);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [reviews, setReviews] = useState<StoreReview[]>([]);
+  
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewForm, setReviewForm] = useState({ customer_name: '', rating: 5, description: '' });
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewSuccess, setReviewSuccess] = useState(false);
+  const [activeFaqIndex, setActiveFaqIndex] = useState<number | null>(null);
+
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    productsApi.categories().then(r => setCategories(r.categories)).catch(console.error);
+    productsApi.list().then(r => setBestsellers(r.products.filter(p => p.badge).slice(0, 4))).catch(console.error);
+    achievementsApi.list().then(r => setAchievements(r.achievements)).catch(console.error);
+    reviewsApi.list().then(r => setReviews(r.reviews)).catch(console.error);
+  }, []);
+
+  async function handleReviewSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSubmittingReview(true);
+    try {
+      await reviewsApi.create(reviewForm);
+      setReviewSuccess(true);
+      setTimeout(() => {
+        setShowReviewModal(false);
+        setReviewSuccess(false);
+        setReviewForm({ customer_name: '', rating: 5, description: '' });
+      }, 3000);
+    } catch (err: any) {
+      alert('Error submitting review: ' + err.message);
+    } finally {
+      setSubmittingReview(false);
+    }
+  }
+
+  return (
+    <div>
+      <SEO 
+        title="Premium Spices & Authentic Flavours" 
+        description="Hand-sourced from the finest farms across India. Over 35 years of heritage in every jar. Discover our premium collection of authentic spices."
+      />
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: 'url(https://images.unsplash.com/photo-1716816211590-c15a328a5ff0?w=1400&h=600&fit=crop&auto=format)',
+            backgroundSize: 'cover', backgroundPosition: 'center',
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-foreground/85 via-foreground/60 to-transparent" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
+          <p className="text-xs tracking-[0.25em] uppercase text-accent font-semibold mb-4">Taste of Tradition in Every spoon</p>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight" style={{ fontFamily: "'Playfair Display', serif" }}>
+            Pure Spices,<br />
+            <span className="text-accent">Authentic Flavours</span>
+          </h1>
+          <p className="text-white/80 text-base sm:text-lg max-w-xl mb-8">
+            Hand-sourced from the finest farms.Heritage in every jar.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link to="/category/special" className="px-6 py-3 bg-primary text-white rounded-xl font-semibold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/30">
+              Shop 
+            </Link>
+            <Link to="/company" className="px-6 py-3 bg-white/15 text-white rounded-xl font-semibold text-sm hover:bg-white/25 transition-all border border-white/30">
+              Our Story
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Features strip */}
+      <div className="bg-primary">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-primary-foreground/20">
+            {[
+              { icon: '🌿', label: '100% Natural', sub: 'No additives' },
+              { icon: '🚚', label: 'Free Delivery', sub: 'Orders above ₹499' },
+              { icon: '🔒', label: 'Secure Payment', sub: 'UPI & Cards' },
+              { icon: '♻️', label: 'Eco Packaging', sub: 'Biodegradable' },
+            ].map(f => (
+              <div key={f.label} className="flex items-center gap-3 px-4 sm:px-6 py-4">
+                <span className="text-2xl">{f.icon}</span>
+                <div>
+                  <div className="text-white font-semibold text-sm">{f.label}</div>
+                  <div className="text-white/60 text-xs">{f.sub}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Categories */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
+        <div className="mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>Shop by Category</h2>
+          <p className="text-muted-foreground text-sm mt-1">Explore our full range of premium spices</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {categories.map((cat, i) => (
+            <Link
+              key={cat.id}
+              to={`/category/${cat.id}`}
+              className={`group relative overflow-hidden rounded-2xl text-left block ${i === 0 ? 'sm:col-span-2 lg:col-span-1' : ''} hover:shadow-xl transition-all duration-300`}
+            >
+              <div className="relative h-52 sm:h-56">
+                <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
+              </div>
+              <div className="absolute inset-0 flex flex-col justify-end p-5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>{cat.name}</h3>
+                    <p className="text-white/75 text-xs">{cat.description}</p>
+                  </div>
+                  <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full text-white text-xs font-medium group-hover:bg-primary transition-colors">
+                    {cat.product_count}+ <ChevronRight className="w-3 h-3" />
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Bestsellers */}
+      <section className="bg-muted/30 py-14">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>Bestsellers</h2>
+              <p className="text-muted-foreground text-sm mt-1">Most loved by our customers</p>
+            </div>
+            <Link to="/category/blended" className="text-sm text-primary font-medium hover:underline flex items-center gap-1">
+              View all <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {bestsellers.map(product => (
+              <div key={product.id} className="bg-card rounded-2xl border border-border overflow-hidden hover:shadow-lg transition-all duration-300 group flex flex-col">
+                <Link to={`/category/${product.category_id}`} className="relative overflow-hidden block">
+                  <img src={product.image_url} alt={product.name} className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-500 bg-muted" />
+                  {product.badge && (
+                    <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full font-medium">{product.badge}</span>
+                  )}
+                  {product.stock_qty <= 10 && product.stock_qty > 0 && (
+                    <span className="absolute top-2 right-2 bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+                      Only {product.stock_qty} left!
+                    </span>
+                  )}
+                  {product.stock_qty === 0 && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">Out of Stock</span>
+                    </div>
+                  )}
+                </Link>
+                <div className="p-4 flex flex-col flex-1">
+                  <h4 className="font-semibold text-foreground text-sm mb-1 line-clamp-1">{product.name}</h4>
+                  <div className="flex items-center gap-1 mb-2">
+                    {[1,2,3,4,5].map(i => (
+                      <Star key={i} className={`w-3 h-3 ${i <= Math.round(product.rating) ? 'fill-amber-400 text-amber-400' : 'fill-muted text-muted'}`} />
+                    ))}
+                    <span className="text-xs text-muted-foreground">({product.reviews})</span>
+                  </div>
+                  <div className="flex items-center justify-between mt-auto">
+                    <div>
+                      <span className="text-base font-bold text-foreground">₹{product.price}</span>
+                      <span className="text-xs text-muted-foreground line-through ml-1">₹{product.original_price}</span>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        addToCart(product);
+                      }}
+                      disabled={product.stock_qty === 0}
+                      className="p-1.5 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Trust badges */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          {achievements.map(a => (
+            <div key={a.id} className="text-center p-4">
+              <div className="text-3xl mb-2">{a.icon}</div>
+              <div className="text-xl font-bold text-primary" style={{ fontFamily: "'Playfair Display', serif" }}>{a.value}</div>
+              <div className="text-xs text-muted-foreground mt-0.5">{a.title}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Customer Reviews Section */}
+      <section className="bg-primary/5 py-14">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-4">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>What Our Customers Say</h2>
+              <p className="text-muted-foreground text-sm mt-1">Real reviews from our spice-loving community</p>
+            </div>
+            <button 
+              onClick={() => setShowReviewModal(true)}
+              className="px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-all shadow-md flex items-center gap-2"
+            >
+              <Star className="w-4 h-4 fill-white" /> Write a Review
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {reviews.map(r => (
+              <div key={r.id} className="bg-card p-6 rounded-2xl border border-border hover:shadow-lg transition-shadow">
+                <div className="flex items-center gap-1 mb-3">
+                  {[1,2,3,4,5].map(i => (
+                    <Star key={i} className={`w-4 h-4 ${i <= r.rating ? 'fill-amber-400 text-amber-400' : 'fill-muted text-muted'}`} />
+                  ))}
+                </div>
+                <p className="text-foreground italic mb-4">"{r.description}"</p>
+                <div className="font-semibold text-sm text-foreground">— {r.customer_name}</div>
+              </div>
+            ))}
+            {reviews.length === 0 && (
+              <div className="col-span-full text-center py-10 text-muted-foreground">
+                Be the first to share your experience with us
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Frequently Asked Questions */}
+      <section className="py-16 bg-muted/20 border-t border-border">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
+              Frequently Asked Questions
+            </h2>
+            <p className="text-muted-foreground text-sm mt-2">
+              Have queries about ordering or delivery? Find your answers here.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {[
+              {
+                q: "What is the minimum order for delivery?",
+                a: "There is no minimum order for delivery but we charge a nominal delivery fee."
+              },
+              {
+                q: "Is it possible to order an item which is out of stock?",
+                a: "No, you can only order products which are in stock. We try to ensure availability of all products on our website, however, due to supply chain issues, sometimes this is not possible."
+              },
+              {
+                q: "How do I check the current status of my order?",
+                a: "You can track the live status of your order directly from the 'My Orders' section in the navigation bar. The status will update from pending to processing, shipped, and delivered/cancelled."
+              },
+              {
+                q: "How do I contact customer service?",
+                a: "Our customer service team is available throughout the week, all six days from 9:30 am to 6:00 pm. They can be reached at +917305373004 or via email at info@hemaskitchenfoods.com"
+              },
+              {
+                q: "What are the modes of payment?",
+                a: "You can pay for your order on Hema's Kitchen Foods using the following modes of payment: Credit and debit cards (VISA / Mastercard / American Express) UPI (Google Pay/ PhonePe / Paytm etc.)"
+              }
+            ].map((faq, index) => {
+              const isOpen = activeFaqIndex === index;
+              return (
+                <div 
+                  key={index} 
+                  className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm transition-all duration-300 hover:border-primary/30"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setActiveFaqIndex(isOpen ? null : index)}
+                    className="w-full px-6 py-5 text-left flex items-center justify-between gap-4 font-semibold text-foreground hover:bg-muted/30 transition-colors"
+                  >
+                    <span className="flex items-center gap-3">
+                      <HelpCircle className="w-5 h-5 text-primary shrink-0" />
+                      {faq.q}
+                    </span>
+                    <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform duration-300 ${isOpen ? 'rotate-180 text-primary' : ''}`} />
+                  </button>
+                  
+                  <div 
+                    className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                      isOpen ? 'max-h-40 border-t border-border/60 bg-muted/10' : 'max-h-0'
+                    }`}
+                  >
+                    <p className="px-6 py-5 text-sm text-foreground/80 leading-relaxed font-medium">
+                      {faq.a}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Write a Review Modal */}
+      {showReviewModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-card rounded-2xl border border-border w-full max-w-md shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-muted/30">
+              <h3 className="font-bold text-foreground text-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
+                Share Your Experience
+              </h3>
+              <button onClick={() => setShowReviewModal(false)} className="p-1.5 hover:bg-muted rounded-lg transition-colors"><X className="w-5 h-5 text-muted-foreground" /></button>
+            </div>
+            
+            {reviewSuccess ? (
+              <div className="p-8 text-center flex flex-col items-center">
+                <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
+                  <Check className="w-8 h-8" />
+                </div>
+                <h4 className="text-xl font-bold mb-2">Thank you!</h4>
+                <p className="text-muted-foreground text-sm">Your review has been submitted.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleReviewSubmit} className="p-6 space-y-5">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">Your Name</label>
+                  <input
+                    required
+                    value={reviewForm.customer_name}
+                    onChange={e => setReviewForm(prev => ({ ...prev, customer_name: e.target.value }))}
+                    placeholder="e.g. John Doe"
+                    className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm focus:ring-2 focus:ring-primary/30 outline-none"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">Rating</label>
+                  <div className="flex gap-2">
+                    {[1,2,3,4,5].map(i => (
+                      <button
+                        type="button"
+                        key={i}
+                        onClick={() => setReviewForm(prev => ({ ...prev, rating: i }))}
+                        className="p-1 hover:scale-110 transition-transform"
+                      >
+                        <Star className={`w-8 h-8 ${i <= reviewForm.rating ? 'fill-amber-400 text-amber-400' : 'fill-muted text-muted'}`} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">Review</label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={reviewForm.description}
+                    onChange={e => setReviewForm(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Tell us what you loved about our spices..."
+                    className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm focus:ring-2 focus:ring-primary/30 outline-none resize-none"
+                  />
+                </div>
+                
+                <button
+                  type="submit"
+                  disabled={submittingReview}
+                  className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:opacity-90 transition-all disabled:opacity-70 flex items-center justify-center"
+                >
+                  {submittingReview ? 'Submitting...' : 'Submit Review'}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
