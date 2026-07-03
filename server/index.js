@@ -19,9 +19,12 @@ const PORT = process.env.PORT || 3001;
 // ─── Security middleware ─────────────────────────────────────
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? ['https://your-production-domain.com']
-    : ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'],
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:5173',
+    /\.vercel\.app$/ // Allows all Vercel preview and production deployments
+  ],
   credentials: true,
 }));
 
