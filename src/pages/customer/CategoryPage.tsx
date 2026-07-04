@@ -142,13 +142,7 @@ export default function CategoryPage() {
 
                   <div className="p-4 flex flex-col flex-1">
                     <h4 className="font-semibold text-foreground text-sm mb-1 line-clamp-1">{product.name}</h4>
-                    <p className="text-xs text-muted-foreground line-clamp-2 mb-2 flex-1">{product.description}</p>
-                    <div className="flex items-center gap-1.5 mb-3">
-                      {[1,2,3,4,5].map(i => (
-                        <Star key={i} className={`w-3 h-3 ${i <= Math.round(product.rating) ? 'fill-amber-400 text-amber-400' : 'fill-muted text-muted'}`} />
-                      ))}
-                      <span className="text-xs text-muted-foreground">{product.rating} ({product.reviews})</span>
-                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mb-3 flex-1">{product.description}</p>
                     <div className="flex items-center justify-between">
                       <div>
                         <span className="text-base font-bold text-foreground">₹{product.price}</span>
