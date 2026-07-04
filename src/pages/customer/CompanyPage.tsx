@@ -17,13 +17,19 @@ import {
 import { Link } from 'react-router';
 import { SEO } from '../../components/SEO';
 
+import about1 from '../../assets/about_1.jpeg';
+import about2 from '../../assets/about_2.jpeg';
+import about3 from '../../assets/about_3.jpeg';
+import about4 from '../../assets/about_4.jpeg';
+import about5 from '../../assets/about_5.jpeg';
+
 export default function CompanyPage() {
   const aboutImages = [
-    'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&h=600&fit=crop',
-    'https://images.unsplash.com/photo-1716816211590-c15a328a5ff0?w=800&h=600&fit=crop',
-    'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=800&h=600&fit=crop',
-    'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&h=600&fit=crop',
-    'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&h=600&fit=crop'
+    about1,
+    about2,
+    about3,
+    about4,
+    about5
   ];
   const [aboutIndex, setAboutIndex] = React.useState(0);
   const [isPaused, setIsPaused] = React.useState(false);

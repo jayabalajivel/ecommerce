@@ -481,10 +481,22 @@ export default function PaymentPage() {
               </label>
             </div>
 
+            <div className="flex items-start gap-2 pt-2 pb-1">
+              <input
+                type="checkbox"
+                id="policyAgree"
+                required
+                className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary focus:ring-offset-background cursor-pointer"
+              />
+              <label htmlFor="policyAgree" className="text-[11px] text-muted-foreground leading-snug cursor-pointer select-none">
+                I agree to the <span className="font-semibold text-foreground">Refund & Exchange Policy</span>. I understand that items are replaced only if defective or damaged, and return shipping costs are self-paid.
+              </label>
+            </div>
+
             <button
               type="submit"
               disabled={isProcessing}
-              className="w-full mt-4 py-4 bg-[#1a1a1a] text-white rounded-xl font-bold text-lg hover:bg-black active:scale-[0.99] transition-all shadow-md disabled:opacity-60"
+              className="w-full mt-2 py-4 bg-[#1a1a1a] text-white rounded-xl font-bold text-lg hover:bg-black active:scale-[0.99] transition-all shadow-md disabled:opacity-60"
             >
               {isProcessing ? 'Processing...' : 'Place Order'}
             </button>

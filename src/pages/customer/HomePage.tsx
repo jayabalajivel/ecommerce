@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ChevronRight, Star, Plus, X, Check, ChevronDown, HelpCircle } from 'lucide-react';
+import { ChevronRight, Star, Plus, X, Check, ChevronDown, HelpCircle, RefreshCw, Truck } from 'lucide-react';
 import { useNavigate, Link } from 'react-router';
 import { productsApi, achievementsApi, reviewsApi } from '../../lib/api';
 import type { Category, Product, Achievement, StoreReview } from '../../lib/api';
@@ -374,6 +374,54 @@ export default function HomePage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* Refund and Exchange Policy */}
+      <section className="py-16 bg-background border-t border-border">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>
+              Refund & Exchange Policy
+            </h2>
+            <p className="text-muted-foreground text-sm mt-2">
+              Our policy on exchanges, returns, and shipping instructions.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Exchanges Card */}
+            <div className="bg-card border border-border p-6 rounded-2xl shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300">
+              <div>
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                  <RefreshCw className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3 font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>Exchanges</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  We only replace items if they are defective or damaged. If you need to exchange it for the same item, send us an email at <a href="mailto:maduraimadasamyidlypodi@gmail.com" className="text-primary hover:underline font-semibold">maduraimadasamyidlypodi@gmail.com</a> or contact: <a href="tel:9843430304" className="text-primary hover:underline font-semibold">9843430304</a> and send your item to:
+                </p>
+              </div>
+              <div className="mt-4 pt-4 border-t border-border bg-muted/20 p-3.5 rounded-xl text-xs text-foreground/80 font-medium">
+                <strong>Return Address:</strong> MADURAI MADASAMY IDLYPODI, Flat no:21, Pandiyan nagar 1st Street, Kosakulam, Madurai - 625017.
+              </div>
+            </div>
+
+            {/* Shipping Returns Card */}
+            <div className="bg-card border border-border p-6 rounded-2xl shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300">
+              <div>
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                  <Truck className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3 font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>Shipping & Returns</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  To return your product, you should mail your product to our address. You will be responsible for paying for your own shipping costs for returning your item. Shipping costs are non-refundable. If you receive a refund, the cost of return shipping will be deducted from your refund.
+                </p>
+              </div>
+              <div className="mt-4 pt-4 border-t border-border bg-muted/20 p-3.5 rounded-xl text-xs text-foreground/80 font-medium">
+                <strong>Shipping Address:</strong> MADURAI MADASAMY IDLYPODI, flat no:21, Pandiyan nagar 1st Street, Kosakulam, Madurai - 625017.
+              </div>
+            </div>
           </div>
         </div>
       </section>
