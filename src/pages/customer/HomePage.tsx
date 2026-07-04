@@ -18,6 +18,48 @@ export default function HomePage() {
   const [reviewSuccess, setReviewSuccess] = useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = useState<number | null>(null);
 
+  const heroImages = [
+    'https://images.unsplash.com/photo-1716816211590-c15a328a5ff0?w=1400&h=600&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=1400&h=600&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=1400&h=600&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1400&h=600&fit=crop&auto=format',
+    'https://images.unsplash.com/photo-1584263347416-85a210352e4b?w=1400&h=600&fit=crop&auto=format'
+  ];
+  const [heroIndex, setHeroIndex] = useState(0);
+  const [isHeroPaused, setIsHeroPaused] = useState(false);
+  const heroTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const heroPauseTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const startHeroTimer = () => {
+    if (heroTimerRef.current) clearInterval(heroTimerRef.current);
+    heroTimerRef.current = setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % heroImages.length);
+    }, 4000);
+  };
+
+  useEffect(() => {
+    if (!isHeroPaused) {
+      startHeroTimer();
+    }
+    return () => {
+      if (heroTimerRef.current) clearInterval(heroTimerRef.current);
+    };
+  }, [isHeroPaused]);
+
+  const handleHeroTouch = () => {
+    setIsHeroPaused(true);
+    if (heroTimerRef.current) {
+      clearInterval(heroTimerRef.current);
+      heroTimerRef.current = null;
+    }
+    if (heroPauseTimeoutRef.current) clearTimeout(heroPauseTimeoutRef.current);
+    
+    // Resume after 5 seconds
+    heroPauseTimeoutRef.current = setTimeout(() => {
+      setIsHeroPaused(false);
+    }, 5000);
+  };
+
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
@@ -53,27 +95,37 @@ export default function HomePage() {
         description="Hand-sourced from the finest farms across India. Over 35 years of heritage in every jar. Discover our premium collection of authentic spices."
       />
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <section 
+        className="relative overflow-hidden cursor-pointer"
+        onClick={handleHeroTouch}
+        onTouchStart={handleHeroTouch}
+        onMouseEnter={handleHeroTouch}
+      >
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 transition-all duration-1000 ease-in-out"
           style={{
-            backgroundImage: 'url(https://images.unsplash.com/photo-1716816211590-c15a328a5ff0?w=1400&h=600&fit=crop&auto=format)',
+            backgroundImage: `url(${heroImages[heroIndex]})`,
             backgroundSize: 'cover', backgroundPosition: 'center',
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-foreground/85 via-foreground/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/80 to-transparent" />
+        {isHeroPaused && (
+          <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-full font-medium z-20 animate-pulse">
+            ⏸ Background Paused
+          </div>
+        )}
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
           <p className="text-xs tracking-[0.25em] uppercase text-accent font-semibold mb-4">Taste of Tradition in Every spoon</p>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Pure Spices,<br />
-            <span className="text-accent">Authentic Flavours</span>
+            Authentic SouthIndian,<br />
+            <span className="text-accent">Homemade Foods</span>
           </h1>
           <p className="text-white/80 text-base sm:text-lg max-w-xl mb-8">
             Hand-sourced from the finest farms.Heritage in every jar.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Link to="/category/special" className="px-6 py-3 bg-primary text-white rounded-xl font-semibold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/30">
-              Shop 
+            <Link to="/category/special" className="px-6 py-3 bg-accent text-accent-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-accent/20">
+              Shop Now
             </Link>
             <Link to="/company" className="px-6 py-3 bg-white/15 text-white rounded-xl font-semibold text-sm hover:bg-white/25 transition-all border border-white/30">
               Our Story
@@ -83,20 +135,20 @@ export default function HomePage() {
       </section>
 
       {/* Features strip */}
-      <div className="bg-primary">
+      <div className="bg-secondary border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-primary-foreground/20">
+          <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-border">
             {[
-              { icon: '🌿', label: '100% Natural', sub: 'No additives' },
+              { icon: '🌿', label: '100% Natural', sub: 'No additives,No preservatives' },
               { icon: '🚚', label: 'Free Delivery', sub: 'Orders above ₹499' },
-              { icon: '🔒', label: 'Secure Payment', sub: 'UPI & Cards' },
+              { icon: '🔒', label: 'Secure Payment', sub: 'UPI ' },
               { icon: '♻️', label: 'Eco Packaging', sub: 'Biodegradable' },
             ].map(f => (
               <div key={f.label} className="flex items-center gap-3 px-4 sm:px-6 py-4">
                 <span className="text-2xl">{f.icon}</span>
                 <div>
-                  <div className="text-white font-semibold text-sm">{f.label}</div>
-                  <div className="text-white/60 text-xs">{f.sub}</div>
+                  <div className="text-foreground font-semibold text-sm">{f.label}</div>
+                  <div className="text-muted-foreground text-xs">{f.sub}</div>
                 </div>
               </div>
             ))}
@@ -269,7 +321,7 @@ export default function HomePage() {
               },
               {
                 q: "Is it possible to order an item which is out of stock?",
-                a: "No, you can only order products which are in stock. We try to ensure availability of all products on our website, however, due to supply chain issues, sometimes this is not possible."
+                a: "No, you can only order products which are in stock.otherwise you can orderby whatsapp or contact number"
               },
               {
                 q: "How do I check the current status of my order?",
@@ -277,11 +329,11 @@ export default function HomePage() {
               },
               {
                 q: "How do I contact customer service?",
-                a: "Our customer service team is available throughout the week, all six days from 9:30 am to 6:00 pm. They can be reached at +917305373004 or via email at info@hemaskitchenfoods.com"
+                a: "Our customer service team is available throughout the week, all seven days from 9:30 am to 6:00 pm. They can be reached at +919843430304 or via email at maduraimadasamyidlypodi@gmail.com"
               },
               {
-                q: "What are the modes of payment?",
-                a: "You can pay for your order on Hema's Kitchen Foods using the following modes of payment: Credit and debit cards (VISA / Mastercard / American Express) UPI (Google Pay/ PhonePe / Paytm etc.)"
+                q: "What are the procedure of payment?",
+                a: " you can pay by clicking paynow option and also generated QRcode.After completing payment enter your Transaction ID and payment screenshot genuinely."
               }
             ].map((faq, index) => {
               const isOpen = activeFaqIndex === index;

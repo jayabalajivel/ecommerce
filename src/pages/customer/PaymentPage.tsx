@@ -6,6 +6,7 @@ import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { SEO } from '../../components/SEO';
 import { QRCodeSVG } from 'qrcode.react';
+import logoImg from '../../assets/logo.jpg';
 
 export default function PaymentPage() {
   const { cart, cartTotal, clearCart } = useCart();
@@ -135,6 +136,16 @@ export default function PaymentPage() {
 
           {/* Receipt Content */}
           <div className="p-6 md:p-8 bg-white text-gray-800">
+            {/* Brand Header for Printing */}
+            <div className="flex flex-col items-center text-center border-b border-gray-200 pb-6 mb-6">
+              <img src={logoImg} alt="Madurai Madasamy Idlypodi Logo" className="h-16 w-auto object-contain mb-3 rounded-lg border border-gray-100 p-0.5" />
+              <h1 className="text-2xl font-bold text-gray-900 font-serif leading-tight">MADURAI MADASAMY IDLYPODI</h1>
+              <div className="text-[11px] text-gray-500 mt-1 max-w-md">
+                <strong>GST:</strong> 33DQVPM8304R1ZV | <strong>FSSAI:</strong> 22423579000351 <br/>
+                <strong>Phone:</strong> 9843430304 | <strong>WhatsApp:</strong> 9843430304
+              </div>
+            </div>
+
             <div className="flex flex-col md:flex-row justify-between border-b border-gray-200 pb-6 mb-6 gap-6">
               <div>
                 <p className="text-sm text-gray-500 uppercase tracking-wider mb-1">Order Details</p>

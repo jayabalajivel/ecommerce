@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ordersApi } from '../../lib/api';
 import type { Order, OrderStatus } from '../../lib/api';
 import { Clock, RefreshCw, Truck, CheckCircle, XCircle, Printer } from 'lucide-react';
+import logoImg from '../../assets/logo.jpg';
 
 const STATUS_CONFIG: Record<OrderStatus, { label: string; color: string; Icon: React.ComponentType<{ className?: string }> }> = {
   pending: { label: 'Pending', color: 'bg-yellow-100 text-yellow-800', Icon: Clock },
@@ -74,9 +75,14 @@ export default function AdminOrders() {
         </head>
         <body onload="window.print();">
           <div class="header">
+            <img src="${logoImg}" alt="Madurai Madasamy Idlypodi Logo" style="height: 70px; width: auto; object-fit: contain; margin-bottom: 10px; border-radius: 6px;" />
             <div class="logo">MADURAI MADASAMY IDLYPODI</div>
-            <div style="font-size: 14px; color: #555;">Official Packing Slip</div>
-            <div style="margin-top: 10px; font-size: 14px;">Order ID: <strong>${order.id}</strong> &nbsp;|&nbsp; Date: <strong>${new Date(order.created_at).toLocaleDateString()}</strong></div>
+            <div style="font-size: 12px; color: #555; line-height: 1.5; margin-bottom: 10px;">
+              <strong>GST:</strong> 33DQVPM8304R1ZV | <strong>FSSAI:</strong> 22423579000351 <br/>
+              <strong>Phone:</strong> 9843430304 | <strong>WhatsApp:</strong> 9843430304
+            </div>
+            <div style="font-size: 14px; font-weight: bold; border-top: 1px dashed #ccc; padding-top: 8px;">Official Packing Slip</div>
+            <div style="margin-top: 6px; font-size: 14px;">Order ID: <strong>${order.id}</strong> &nbsp;|&nbsp; Date: <strong>${new Date(order.created_at).toLocaleDateString()}</strong></div>
           </div>
           
           <div class="row">

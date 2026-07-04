@@ -3,18 +3,18 @@ import { Routes, Route, Link, NavLink, useNavigate, useLocation } from 'react-ro
 import { ShoppingCart, LogOut } from 'lucide-react';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { CartProvider, useCart } from '../contexts/CartContext';
+import logoImg from '../assets/logo.jpg';
 
-// Lazy load pages for better performance
-const LoginPage = lazy(() => import('../pages/LoginPage'));
-const HomePage = lazy(() => import('../pages/customer/HomePage'));
-const CategoryPage = lazy(() => import('../pages/customer/CategoryPage'));
-const CartPage = lazy(() => import('../pages/customer/CartPage'));
-const PaymentPage = lazy(() => import('../pages/customer/PaymentPage'));
-const CompanyPage = lazy(() => import('../pages/customer/CompanyPage'));
-const UPIRedirectPage = lazy(() => import('../pages/customer/UPIRedirectPage'));
-const AdminLayout = lazy(() => import('../pages/admin/AdminLayout'));
-const MyOrdersPage = lazy(() => import('../pages/customer/MyOrdersPage'));
-const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
+import LoginPage from '../pages/LoginPage';
+import HomePage from '../pages/customer/HomePage';
+import CategoryPage from '../pages/customer/CategoryPage';
+import CartPage from '../pages/customer/CartPage';
+import PaymentPage from '../pages/customer/PaymentPage';
+import CompanyPage from '../pages/customer/CompanyPage';
+import UPIRedirectPage from '../pages/customer/UPIRedirectPage';
+import AdminLayout from '../pages/admin/AdminLayout';
+import MyOrdersPage from '../pages/customer/MyOrdersPage';
+import NotFoundPage from '../pages/NotFoundPage';
 
 function LoadingFallback() {
   return (
@@ -60,19 +60,19 @@ function AppInner() {
   return (
     <div className="min-h-screen bg-background" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       {/* Customer Navbar */}
-      <header className="bg-card border-b border-border sticky top-0 z-40 shadow-sm">
+      <header className="bg-brand-green text-white border-b border-white/10 sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-lg">🌶️</div>
-            <span className="font-bold text-foreground text-lg" style={{ fontFamily: "'Playfair Display', serif" }}>MADURAI MADASAMY IDLYPODI</span>
+            <img src={logoImg} alt="Madurai Madasamy Idlypodi Logo" className="h-10 w-auto object-contain rounded-md bg-white p-0.5" />
+            <span className="font-bold text-white text-lg tracking-wide hidden sm:inline" style={{ fontFamily: "'Playfair Display', serif" }}>MADURAI MADASAMY IDLYPODI</span>
           </Link>
-
+ 
           <nav className="hidden md:flex items-center gap-1">
             <NavLink
               to="/"
               className={({ isActive }) =>
                 `px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  isActive ? 'bg-white/20 text-brand-gold font-bold' : 'text-white/80 hover:text-white hover:bg-white/10'
                 }`
               }
             >
@@ -82,7 +82,7 @@ function AppInner() {
               to="/orders"
               className={({ isActive }) =>
                 `px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  isActive ? 'bg-white/20 text-brand-gold font-bold' : 'text-white/80 hover:text-white hover:bg-white/10'
                 }`
               }
             >
@@ -92,40 +92,40 @@ function AppInner() {
               to="/company"
               className={({ isActive }) =>
                 `px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  isActive ? 'bg-white/20 text-brand-gold font-bold' : 'text-white/80 hover:text-white hover:bg-white/10'
                 }`
               }
             >
               About Us
             </NavLink>
           </nav>
-
+ 
           <div className="flex items-center gap-2">
             <Link
               to="/cart"
-              className="relative flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-card hover:bg-muted/50 transition-colors"
+              className="relative flex items-center gap-2 px-3 py-2 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 transition-colors"
             >
-              <ShoppingCart className="w-4 h-4 text-foreground" />
-              <span className="text-sm font-medium text-foreground hidden sm:inline">Cart</span>
+              <ShoppingCart className="w-4 h-4 text-white" />
+              <span className="text-sm font-medium text-white hidden sm:inline">Cart</span>
               {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center font-bold">
+                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-brand-red text-white text-xs rounded-full flex items-center justify-center font-bold">
                   {cartCount}
                 </span>
               )}
             </Link>
-            <button onClick={logout} className="p-2 rounded-xl hover:bg-muted/50 transition-colors" title="Sign out">
-              <LogOut className="w-4 h-4 text-muted-foreground" />
+            <button onClick={logout} className="p-2 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors" title="Sign out">
+              <LogOut className="w-4 h-4 text-white" />
             </button>
           </div>
         </div>
-
+ 
         {/* Mobile nav */}
-        <div className="md:hidden flex border-t border-border">
+        <div className="md:hidden flex border-t border-white/10 bg-brand-red">
           <NavLink
             to="/"
             className={({ isActive }) =>
-              `flex-1 py-2.5 text-center text-xs font-medium transition-colors ${
-                isActive ? 'text-primary bg-primary/5' : 'text-muted-foreground'
+              `flex-1 py-2.5 text-center text-xs font-semibold transition-colors ${
+                isActive ? 'text-brand-gold bg-white/10' : 'text-white/80 hover:text-white'
               }`
             }
           >
@@ -134,8 +134,8 @@ function AppInner() {
           <NavLink
             to="/orders"
             className={({ isActive }) =>
-              `flex-1 py-2.5 text-center text-xs font-medium transition-colors ${
-                isActive ? 'text-primary bg-primary/5' : 'text-muted-foreground'
+              `flex-1 py-2.5 text-center text-xs font-semibold transition-colors ${
+                isActive ? 'text-brand-gold bg-white/10' : 'text-white/80 hover:text-white'
               }`
             }
           >
@@ -144,8 +144,8 @@ function AppInner() {
           <NavLink
             to="/company"
             className={({ isActive }) =>
-              `flex-1 py-2.5 text-center text-xs font-medium transition-colors ${
-                isActive ? 'text-primary bg-primary/5' : 'text-muted-foreground'
+              `flex-1 py-2.5 text-center text-xs font-semibold transition-colors ${
+                isActive ? 'text-brand-gold bg-white/10' : 'text-white/80 hover:text-white'
               }`
             }
           >

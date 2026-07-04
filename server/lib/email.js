@@ -129,6 +129,9 @@ export async function sendReceiptEmail(order, customerEmail) {
           user: SMTP_USER,
           pass: SMTP_PASS,
         },
+        tls: {
+          rejectUnauthorized: false
+        }
       });
 
       const mailOptions = {

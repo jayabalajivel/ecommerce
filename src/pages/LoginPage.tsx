@@ -3,6 +3,7 @@ import { User, Shield, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../contexts/AuthContext';
 import { SEO } from '../components/SEO';
+import logoImg from '../assets/logo.jpg';
 
 interface LoginPageProps {
   onSuccess?: () => void;
@@ -73,10 +74,8 @@ export default function LoginPage({ onSuccess }: LoginPageProps) {
 
       <div className="relative z-10 w-full max-w-[420px] mx-auto px-5">
         {/* Brand */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4 shadow-lg">
-            <span className="text-3xl"></span>
-          </div>
+        <div className="text-center mb-8 flex flex-col items-center">
+          <img src={logoImg} alt="Madurai Madasamy Idlypodi Logo" className="w-24 h-24 object-contain rounded-2xl shadow-lg mb-4 border border-border bg-white p-1" />
           <h1 className="text-3xl font-bold text-foreground mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>
             MADURAI MADASAMY IDLYPODI
           </h1>
