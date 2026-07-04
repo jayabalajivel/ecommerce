@@ -6,6 +6,14 @@ import type { Product, Category } from '../../lib/api';
 import { useCart } from '../../contexts/CartContext';
 import { SEO } from '../../components/SEO';
 
+const getOptimizedImg = (url: string, w = 400, h = 300) => {
+  if (!url) return '';
+  if (url.includes('unsplash.com') && !url.includes('?w=')) {
+    return `${url}?w=${w}&h=${h}&fit=crop&q=80&auto=format`;
+  }
+  return url;
+};
+
 export default function CategoryPage() {
   const { categoryId } = useParams<{ categoryId: string }>();
   const navigate = useNavigate();
@@ -19,12 +27,28 @@ export default function CategoryPage() {
   useEffect(() => {
     if (!categoryId) return;
     setLoading(true);
+    
+    const apiCall = categoryId === 'all'
+      ? productsApi.list()
+      : productsApi.list({ category: categoryId });
+
     Promise.all([
-      productsApi.list({ category: categoryId }),
+      apiCall,
       productsApi.categories(),
     ]).then(([prods, cats]) => {
       setProducts(prods.products);
-      setCategory(cats.categories.find(c => c.id === categoryId) || null);
+      if (categoryId === 'all') {
+        setCategory({
+          id: 'all',
+          name: 'All Products',
+          description: 'Explore our full range of authentic South Indian condiments, masalas, and powders.',
+          image_url: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=1200&fit=crop',
+          sort_order: 0,
+          product_count: prods.products.length
+        });
+      } else {
+        setCategory(cats.categories.find(c => c.id === categoryId) || null);
+      }
     }).catch(console.error).finally(() => setLoading(false));
   }, [categoryId]);
 
@@ -40,7 +64,7 @@ export default function CategoryPage() {
       />
       {/* Category Hero */}
       <div className="relative h-44 overflow-hidden">
-        {category && <img src={category.image_url} alt={category.name} className="w-full h-full object-cover" />}
+        {category && <img src={getOptimizedImg(category.image_url, 1200, 300)} alt={category.name} className="w-full h-full object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 to-transparent" />
         <div className="absolute inset-0 flex items-center px-4 sm:px-6 max-w-7xl mx-auto">
           <div>
@@ -97,7 +121,7 @@ export default function CategoryPage() {
               return (
                 <div key={product.id} className="bg-card rounded-2xl border border-border overflow-hidden hover:shadow-lg transition-all duration-300 group flex flex-col">
                   <div className="relative overflow-hidden flex-shrink-0">
-                    <img src={product.image_url} alt={product.name} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500 bg-muted" />
+                    <img src={getOptimizedImg(product.image_url, 400, 300)} alt={product.name} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500 bg-muted" />
                     {product.badge && (
                       <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full font-medium">{product.badge}</span>
                     )}

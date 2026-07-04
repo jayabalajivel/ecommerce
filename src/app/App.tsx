@@ -69,7 +69,7 @@ function AppInner() {
  
           <nav className="hidden md:flex items-center gap-1">
             <NavLink
-              to="/"
+              to="/category/all"
               className={({ isActive }) =>
                 `px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isActive ? 'bg-white/20 text-brand-gold font-bold' : 'text-white/80 hover:text-white hover:bg-white/10'
@@ -122,7 +122,7 @@ function AppInner() {
         {/* Mobile nav */}
         <div className="md:hidden flex border-t border-white/10 bg-brand-red">
           <NavLink
-            to="/"
+            to="/category/all"
             className={({ isActive }) =>
               `flex-1 py-2.5 text-center text-xs font-semibold transition-colors ${
                 isActive ? 'text-brand-gold bg-white/10' : 'text-white/80 hover:text-white'

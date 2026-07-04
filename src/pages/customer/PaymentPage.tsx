@@ -44,7 +44,11 @@ export default function PaymentPage() {
   const upiLink = `upi://pay?pa=6374948477-2@ybl&pn=Jayabalaji&am=${grandTotal}&cu=INR`;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    let value = e.target.value;
+    if (e.target.name === 'payment_ref') {
+      value = value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 12);
+    }
+    setFormData(prev => ({ ...prev, [e.target.name]: value }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,6 +78,9 @@ export default function PaymentPage() {
     if (!formData.state.trim()) return setError('State is required');
     if (!formData.pincode.trim()) return setError('Pincode is required');
     if (!formData.payment_ref.trim()) return setError('UPI Transaction ID is required');
+    if (formData.payment_ref.trim().length !== 12) {
+      return setError('UPI Transaction ID must be exactly 12 digits');
+    }
 
     // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -443,6 +450,7 @@ export default function PaymentPage() {
                 name="payment_ref"
                 value={formData.payment_ref}
                 onChange={handleInputChange}
+                maxLength={12}
                 className="w-full p-3 rounded-xl border-2 border-primary/30 bg-primary/5 text-foreground focus:ring-2 focus:ring-primary focus:border-transparent outline-none font-medium"
                 placeholder="e.g. 314512345678"
                 required

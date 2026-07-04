@@ -6,6 +6,14 @@ import type { Category, Product, Achievement, StoreReview } from '../../lib/api'
 import { useCart } from '../../contexts/CartContext';
 import { SEO } from '../../components/SEO';
 
+const getOptimizedImg = (url: string, w = 400, h = 300) => {
+  if (!url) return '';
+  if (url.includes('unsplash.com') && !url.includes('?w=')) {
+    return `${url}?w=${w}&h=${h}&fit=crop&q=80&auto=format`;
+  }
+  return url;
+};
+
 export default function HomePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [bestsellers, setBestsellers] = useState<Product[]>([]);
@@ -124,7 +132,7 @@ export default function HomePage() {
             Hand-sourced from the finest farms.Heritage in every jar.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Link to="/category/special" className="px-6 py-3 bg-accent text-accent-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-accent/20">
+            <Link to="/category/all" className="px-6 py-3 bg-accent text-accent-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-accent/20">
               Shop Now
             </Link>
             <Link to="/company" className="px-6 py-3 bg-white/15 text-white rounded-xl font-semibold text-sm hover:bg-white/25 transition-all border border-white/30">
@@ -170,7 +178,7 @@ export default function HomePage() {
               className={`group relative overflow-hidden rounded-2xl text-left block ${i === 0 ? 'sm:col-span-2 lg:col-span-1' : ''} hover:shadow-xl transition-all duration-300`}
             >
               <div className="relative h-52 sm:h-56">
-                <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <img src={getOptimizedImg(cat.image_url, 600, 450)} alt={cat.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
               </div>
               <div className="absolute inset-0 flex flex-col justify-end p-5">
@@ -197,7 +205,7 @@ export default function HomePage() {
               <h2 className="text-2xl sm:text-3xl font-bold text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>Bestsellers</h2>
               <p className="text-muted-foreground text-sm mt-1">Most loved by our customers</p>
             </div>
-            <Link to="/category/blended" className="text-sm text-primary font-medium hover:underline flex items-center gap-1">
+            <Link to="/category/all" className="text-sm text-primary font-medium hover:underline flex items-center gap-1">
               View all <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
@@ -205,7 +213,7 @@ export default function HomePage() {
             {bestsellers.map(product => (
               <div key={product.id} className="bg-card rounded-2xl border border-border overflow-hidden hover:shadow-lg transition-all duration-300 group flex flex-col">
                 <Link to={`/category/${product.category_id}`} className="relative overflow-hidden block">
-                  <img src={product.image_url} alt={product.name} className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-500 bg-muted" />
+                  <img src={getOptimizedImg(product.image_url, 400, 300)} alt={product.name} className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-500 bg-muted" />
                   {product.badge && (
                     <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full font-medium">{product.badge}</span>
                   )}
