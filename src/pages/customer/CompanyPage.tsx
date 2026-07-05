@@ -110,6 +110,7 @@ export default function CompanyPage() {
           <div className="md:col-span-5 relative flex justify-center z-10">
             <div className="relative w-full max-w-[380px] aspect-square rounded-3xl overflow-hidden border-4 border-brand-gold/30 shadow-2xl">
               <img 
+                loading="lazy"
                 src="https://thfvnext.bing.com/th/id/OIP.iFiyYL2EbdKudbDh5sQtswHaHP?w=160&h=180&c=7&r=0&o=7&cb=thfvnextfalcon4&dpr=1.5&pid=1.7&rm=3" 
                 alt="Madurai Madasamy Idlypodi Jar" 
                 className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
@@ -131,6 +132,7 @@ export default function CompanyPage() {
               onMouseEnter={handleTouch}
             >
               <img 
+                loading="lazy"
                 src={aboutImages[aboutIndex]} 
                 alt="Traditional cooking ingredients slideshow" 
                 className="w-full h-full object-cover transition-all duration-700 ease-in-out transform hover:scale-105"
