@@ -11,7 +11,7 @@ const router = Router();
  */
 router.post('/', requireAuth, async (req, res) => {
   const { items, customer_name, email, address, payment_ref, notes, screenshot_url } = req.body;
-  const userPhone = req.user.phone;
+  const userEmail = req.user.email;
 
   if (!items || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Cart items are required' });
@@ -51,7 +51,7 @@ router.post('/', requireAuth, async (req, res) => {
     return sum + (product.price * item.qty);
   }, 0);
 
-  // Calculate delivery fee: free above 799, Tamil Nadu is 49, others weight-based (80 Rs/kg)
+  // Calculate delivery fee: free above 799, Tamil Nadu is 50, others weight-based (100 Rs/kg)
   let delivery_fee = 0;
   if (subtotal < 799) {
     let orderState = (req.body.state || '').trim();
@@ -67,14 +67,9 @@ router.post('/', requireAuth, async (req, res) => {
 
     const normState = orderState.toLowerCase().replace(/[\s\.\-_]/g, '');
     if (normState === 'tamilnadu' || normState === 'tn') {
-      delivery_fee = 49;
+      delivery_fee = 50;
     } else {
-      const totalWeightGrams = items.reduce((sum, item) => {
-        const product = productMap[item.product_id || item.id];
-        const weight = product.weight_grams ?? 100;
-        return sum + (weight * item.qty);
-      }, 0);
-      delivery_fee = Math.round((totalWeightGrams / 1000) * 80);
+      delivery_fee = 100;
     }
   }
 
@@ -98,7 +93,7 @@ router.post('/', requireAuth, async (req, res) => {
 
   const orderInsertData = {
     id: orderId,
-    user_phone: userPhone,
+    user_phone: userEmail,
     customer_name,
     address,
     items: orderItems,
@@ -183,7 +178,7 @@ router.get('/', requireAuth, async (req, res) => {
     .limit(parseInt(limit));
 
   if (req.user.role !== 'admin') {
-    query = query.eq('user_phone', req.user.phone);
+    query = query.eq('user_phone', req.user.email);
   }
   if (status) query = query.eq('status', status);
 
@@ -204,7 +199,7 @@ router.get('/:id', requireAuth, async (req, res) => {
     .single();
   if (error) return res.status(404).json({ error: 'Order not found' });
 
-  if (req.user.role !== 'admin' && data.user_phone !== req.user.phone) {
+  if (req.user.role !== 'admin' && data.user_phone !== req.user.email) {
     return res.status(403).json({ error: 'Forbidden' });
   }
   res.json({ order: data });

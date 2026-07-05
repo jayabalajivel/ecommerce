@@ -1,18 +1,23 @@
-import jwt from 'jsonwebtoken';
 import supabase from '../lib/supabase.js';
 
 /**
- * Verify JWT and attach user to req.user
+ * Verify Supabase access token and attach user to req.user
  */
-export function requireAuth(req, res, next) {
+export async function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Missing or invalid authorization header' });
   }
   const token = authHeader.slice(7);
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev_secret');
-    req.user = decoded;
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) {
+      return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+    req.user = {
+      email: user.email,
+      role: isAdminEmail(user.email) ? 'admin' : 'customer'
+    };
     next();
   } catch (err) {
     return res.status(401).json({ error: 'Invalid or expired token' });
@@ -32,18 +37,10 @@ export function requireAdmin(req, res, next) {
 }
 
 /**
- * Check if a phone number is in the admin list
+ * Check if an email is the predefined admin email
  */
-export function isAdminPhone(phone) {
-  const adminPhones = (process.env.ADMIN_PHONES || '')
-    .split(',')
-    .map(p => p.trim())
-    .filter(Boolean);
-  
-  // Guarantee developer/admin phone works out-of-the-box in all environments
-  if (!adminPhones.includes('6374948477')) {
-    adminPhones.push('6374948477');
-  }
-  
-  return adminPhones.includes(phone);
+export function isAdminEmail(email) {
+  if (!email) return false;
+  const adminEmail = (process.env.ADMIN_EMAIL || 'maduraimadasamyidlypodi@gmail.com').trim().toLowerCase();
+  return email.trim().toLowerCase() === adminEmail;
 }

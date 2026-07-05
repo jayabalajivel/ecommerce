@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { authApi, adminApi } from '../lib/api';
-import type { AdminSession } from '../lib/api';
+import { supabase } from '../lib/supabase';
+import { adminApi } from '../lib/api';
 
 interface User {
-  phone: string;
+  email: string;
   role: 'customer' | 'admin';
 }
 
@@ -12,12 +12,12 @@ interface AuthContextType {
   isAdmin: boolean;
   isLoading: boolean;
   adminSessionId: string | null;
-  // OTP flow
   otpSent: boolean;
   loginType: 'customer' | 'admin';
   setLoginType: (t: 'customer' | 'admin') => void;
-  sendOtp: (phone: string) => Promise<{ devOtp?: string }>;
-  verifyOtp: (phone: string, otp: string) => Promise<void>;
+  sendOtp: (email: string) => Promise<void>;
+  verifyOtp: (email: string, otp: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   resetOtpFlow: () => void;
 }
@@ -31,54 +31,81 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loginType, setLoginType] = useState<'customer' | 'admin'>('customer');
   const [adminSessionId, setAdminSessionId] = useState<string | null>(null);
 
-  // Restore session from localStorage on mount
+  // Sync session with Supabase auth changes (including page loads and redirects)
   useEffect(() => {
-    const token = localStorage.getItem('sk_token');
-    const savedUser = localStorage.getItem('sk_user');
-    if (token && savedUser) {
-      try {
-        const parsed = JSON.parse(savedUser) as User;
-        setUser(parsed);
-        // Restore admin session ID if applicable
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session) {
+        const token = session.access_token;
+        const adminEmail = (import.meta.env.VITE_ADMIN_EMAIL || 'maduraimadasamyidlypodi@gmail.com').toLowerCase();
+        const role = session.user.email?.toLowerCase() === adminEmail ? 'admin' : 'customer';
+        const userPayload = { email: session.user.email || '', role };
+
+        localStorage.setItem('sk_token', token);
+        localStorage.setItem('sk_user', JSON.stringify(userPayload));
+        setUser(userPayload as User);
+
+        // Restore admin session ID if exists, or start a new one
         const savedSession = localStorage.getItem('sk_admin_session');
-        if (savedSession && parsed.role === 'admin') {
-          setAdminSessionId(savedSession);
+        if (role === 'admin') {
+          if (savedSession) {
+            setAdminSessionId(savedSession);
+          } else {
+            try {
+              const { session: adminSess } = await adminApi.startSession();
+              setAdminSessionId(adminSess.id);
+              localStorage.setItem('sk_admin_session', adminSess.id);
+            } catch (err) {
+              console.error('Failed to start admin session:', err);
+            }
+          }
         }
-      } catch (_) {
+      } else {
         localStorage.removeItem('sk_token');
         localStorage.removeItem('sk_user');
+        localStorage.removeItem('sk_admin_session');
+        setUser(null);
+        setAdminSessionId(null);
       }
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const sendOtp = useCallback(async (phone: string) => {
-    const result = await authApi.sendOtp(phone);
+  const sendOtp = useCallback(async (email: string) => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        shouldCreateUser: true,
+      }
+    });
+    if (error) throw error;
     setOtpSent(true);
-    return { devOtp: result.devOtp };
   }, []);
 
-  const verifyOtp = useCallback(async (phone: string, otp: string) => {
-    const result = await authApi.verifyOtp(phone, otp);
-    localStorage.setItem('sk_token', result.token);
-    localStorage.setItem('sk_user', JSON.stringify(result.user));
-    setUser(result.user as User);
+  const verifyOtp = useCallback(async (email: string, otp: string) => {
+    const { data, error } = await supabase.auth.verifyOtp({
+      email,
+      token: otp,
+      type: 'email',
+    });
+    if (error) throw error;
+    if (!data.session) throw new Error('Verification failed. Invalid OTP.');
     setOtpSent(false);
+  }, []);
 
-    // Start admin session tracking
-    if (result.user.role === 'admin') {
-      try {
-        const { session } = await adminApi.startSession();
-        setAdminSessionId(session.id);
-        localStorage.setItem('sk_admin_session', session.id);
-      } catch (err) {
-        console.error('Failed to start admin session:', err);
+  const loginWithGoogle = useCallback(async () => {
+    const redirectUrl = window.location.origin + '/login';
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectUrl
       }
-    }
+    });
+    if (error) throw error;
   }, []);
 
   const logout = useCallback(async () => {
-    // End admin session
     if (adminSessionId) {
       try {
         await adminApi.endSession(adminSessionId);
@@ -86,7 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem('sk_admin_session');
       setAdminSessionId(null);
     }
-    await authApi.logout().catch(() => {});
+    await supabase.auth.signOut();
     localStorage.removeItem('sk_token');
     localStorage.removeItem('sk_user');
     setUser(null);
@@ -107,6 +134,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoginType,
     sendOtp,
     verifyOtp,
+    loginWithGoogle,
     logout,
     resetOtpFlow,
   };
@@ -114,8 +142,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export function useAuth(): AuthContextType {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
-  return ctx;
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
+  return context;
 }

@@ -191,7 +191,7 @@ router.put('/:id', requireAdmin, async (req, res) => {
       editLogs.push({
         product_id: productId,
         product_name: current.name,
-        admin_phone: req.user.phone,
+        admin_phone: req.user.email,
         session_id: session_id || null,
         field_changed: key,
         old_value: String(current[key] ?? ''),
@@ -255,7 +255,7 @@ router.patch('/:id/stock', requireAdmin, async (req, res) => {
     await supabase.from('product_edits').insert({
       product_id: productId,
       product_name: current.name,
-      admin_phone: req.user.phone,
+      admin_phone: req.user.email,
       session_id: session_id || null,
       field_changed: 'stock_qty',
       old_value: String(current.stock_qty),

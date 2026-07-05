@@ -24,16 +24,22 @@ async function request<T = unknown>(
 
 // ─── Auth ────────────────────────────────────────────────────
 export const authApi = {
-  sendOtp: (phone: string) =>
+  sendOtp: (email: string) =>
     request<{ success: boolean; message: string; devOtp?: string }>('/api/auth/send-otp', {
       method: 'POST',
-      body: JSON.stringify({ phone }),
+      body: JSON.stringify({ email }),
     }),
 
-  verifyOtp: (phone: string, otp: string) =>
-    request<{ success: boolean; token: string; user: { phone: string; role: string }; message: string }>('/api/auth/verify-otp', {
+  verifyOtp: (email: string, otp: string) =>
+    request<{ success: boolean; token: string; user: { email: string; role: string }; message: string }>('/api/auth/verify-otp', {
       method: 'POST',
-      body: JSON.stringify({ phone, otp }),
+      body: JSON.stringify({ email, otp }),
+    }),
+
+  loginWithGoogle: (email: string) =>
+    request<{ success: boolean; token: string; user: { email: string; role: string }; message: string }>('/api/auth/google-login', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
     }),
 
   logout: () =>

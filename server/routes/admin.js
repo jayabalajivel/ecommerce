@@ -12,7 +12,7 @@ router.post('/session/start', requireAdmin, async (req, res) => {
   const { data, error } = await supabase
     .from('admin_sessions')
     .insert({
-      admin_phone: req.user.phone,
+      admin_phone: req.user.email,
       ip_address: req.ip || req.headers['x-forwarded-for'],
       user_agent: req.headers['user-agent'],
     })
@@ -31,7 +31,7 @@ router.post('/session/:id/end', requireAdmin, async (req, res) => {
     .from('admin_sessions')
     .update({ logout_at: new Date().toISOString() })
     .eq('id', req.params.id)
-    .eq('admin_phone', req.user.phone)
+    .eq('admin_phone', req.user.email)
     .select()
     .single();
   if (error) return res.status(500).json({ error: error.message });

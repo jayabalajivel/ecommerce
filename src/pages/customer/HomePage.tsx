@@ -6,6 +6,17 @@ import type { Category, Product, Achievement, StoreReview } from '../../lib/api'
 import { useCart } from '../../contexts/CartContext';
 import { SEO } from '../../components/SEO';
 
+import about1 from '../../assets/about_1.jpeg';
+import about2 from '../../assets/about_2.jpeg';
+import about3 from '../../assets/about_3.jpeg';
+import about4 from '../../assets/about_4.jpeg';
+import about5 from '../../assets/about_5.jpeg';
+
+import hero1 from '../../assets/hero_1.jpg';
+import hero2 from '../../assets/hero_2.jpg';
+import hero3 from '../../assets/hero_3.jpg';
+import hero4 from '../../assets/hero_4.jpg';
+
 const getOptimizedImg = (url: string, w = 400, h = 300) => {
   if (!url) return '';
   if (url.includes('unsplash.com') && !url.includes('?w=')) {
@@ -26,13 +37,7 @@ export default function HomePage() {
   const [reviewSuccess, setReviewSuccess] = useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = useState<number | null>(null);
 
-  const heroImages = [
-    'https://images.unsplash.com/photo-1716816211590-c15a328a5ff0?w=1400&h=600&fit=crop&auto=format',
-    'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=1400&h=600&fit=crop&auto=format',
-    'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=1400&h=600&fit=crop&auto=format',
-    'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1400&h=600&fit=crop&auto=format',
-    'https://images.unsplash.com/photo-1584263347416-85a210352e4b?w=1400&h=600&fit=crop&auto=format'
-  ];
+  const heroImages = [hero1, hero2, hero3, hero4];
   const [heroIndex, setHeroIndex] = useState(0);
   const [isHeroPaused, setIsHeroPaused] = useState(false);
   const heroTimerRef = React.useRef<NodeJS.Timeout | null>(null);
@@ -42,7 +47,7 @@ export default function HomePage() {
     if (heroTimerRef.current) clearInterval(heroTimerRef.current);
     heroTimerRef.current = setInterval(() => {
       setHeroIndex((prev) => (prev + 1) % heroImages.length);
-    }, 4000);
+    }, 2000);
   };
 
   useEffect(() => {

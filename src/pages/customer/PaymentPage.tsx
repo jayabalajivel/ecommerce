@@ -26,8 +26,8 @@ export default function PaymentPage() {
 
   const [formData, setFormData] = useState({
     customer_name: '',
-    phone: user?.phone || '',
-    email: '',
+    phone: '',
+    email: user?.email || '',
     door_no: '',
     street: '',
     city: '',
@@ -37,27 +37,20 @@ export default function PaymentPage() {
     payment_ref: '',
   });
 
-  // Dynamic delivery fee calculation based on state and weight
+  // Dynamic delivery fee calculation based on state
   const getDeliveryFee = () => {
+    if (cart.length === 0) return 0;
     if (cartTotal >= 799) return 0;
     
     const stateName = (formData.state || '').trim().toLowerCase().replace(/[\s\.\-_]/g, '');
-    if (!stateName) {
-      // Default to 49 if state not typed yet
-      return 49;
+    
+    // Default to ₹50 if no state is entered yet, or if it is Tamil Nadu
+    if (!stateName || stateName === 'tamilnadu' || stateName === 'tn') {
+      return 50;
     }
     
-    if (stateName === 'tamilnadu' || stateName === 'tn') {
-      return 49;
-    }
-    
-    // Other state: ₹80 per kg calculated by product grams
-    const totalWeightGrams = cart.reduce((sum, item) => {
-      const weight = item.weight_grams ?? 100;
-      return sum + (weight * item.qty);
-    }, 0);
-    
-    return Math.round((totalWeightGrams / 1000) * 80);
+    // Other states: Flat ₹100
+    return 100;
   };
 
   const deliveryFee = getDeliveryFee();
@@ -288,7 +281,7 @@ export default function PaymentPage() {
               </div>
               {deliveryFee > 0 && (
                 <p className="text-[10px] text-muted-foreground mt-0.5 text-right">
-                  * Tamil Nadu delivery: ₹49. Other states: ₹80/kg.
+                  * Tamil Nadu delivery: ₹50. Other states: ₹100.
                 </p>
               )}
               <div className="flex justify-between items-center pt-3 border-t border-border mt-3">

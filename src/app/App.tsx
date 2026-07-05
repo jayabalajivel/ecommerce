@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { Routes, Route, Link, NavLink, useNavigate, useLocation } from 'react-router';
+import { Routes, Route, Link, NavLink, useNavigate, useLocation, Navigate } from 'react-router';
 import { ShoppingCart, LogOut } from 'lucide-react';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { CartProvider, useCart } from '../contexts/CartContext';
@@ -159,6 +159,7 @@ function AppInner() {
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<Navigate to="/" replace />} />
             <Route path="/category/:categoryId" element={<CategoryPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/payment" element={<PaymentPage />} />

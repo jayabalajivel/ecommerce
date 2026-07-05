@@ -110,7 +110,7 @@ export default function CompanyPage() {
           <div className="md:col-span-5 relative flex justify-center z-10">
             <div className="relative w-full max-w-[380px] aspect-square rounded-3xl overflow-hidden border-4 border-brand-gold/30 shadow-2xl">
               <img 
-                src="https://images.unsplash.com/photo-1716816211590-c15a328a5ff0?w=600&h=600&fit=crop&auto=format" 
+                src="https://thfvnext.bing.com/th/id/OIP.iFiyYL2EbdKudbDh5sQtswHaHP?w=160&h=180&c=7&r=0&o=7&cb=thfvnextfalcon4&dpr=1.5&pid=1.7&rm=3" 
                 alt="Madurai Madasamy Idlypodi Jar" 
                 className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
               />
@@ -312,19 +312,19 @@ Madurai Madasamy Idly Podi was founded with a simple mission—to preserve the a
                   step: '2', 
                   title: 'Traditional Preparation', 
                   desc: 'Ingredients are dry roasted in small batches to bring out rich aroma and taste.',
-                  image: 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=150&h=150&fit=crop'
+                  image: 'https://thfvnext.bing.com/th/id/OIP.b8RNALJNOa6e8ALTzkJrsAHaHa?w=158&h=180&c=7&r=0&o=7&cb=thfvnextfalcon4&dpr=1.5&pid=1.7&rm=3'
                 },
                 { 
                   step: '3', 
                   title: 'Perfectly Ground', 
                   desc: 'Roasted ingredients are ground carefully to the perfect traditional texture.',
-                  image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=150&h=150&fit=crop'
+                  image: 'https://images.unsplash.com/photo-1587169710786-71e29f4e313f?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fG5pY2x5JTIwZ3JpbmRpbmclMjBmbG91cnxlbnwwfHwwfHx8MA%3D%3D'
                 },
                 { 
                   step: '4', 
                   title: 'Hygienic Packing', 
                   desc: 'Packed in clean, hygienic environment to lock freshness and native aroma.',
-                  image: 'https://images.unsplash.com/photo-1584263347416-85a210352e4b?w=150&h=150&fit=crop'
+                  image: 'https://plus.unsplash.com/premium_photo-1661964051413-89853c6ce0d9?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8aHlnZW5pYyUyMHBhY2thZ2luZ3xlbnwwfHwwfHx8MA%3D%3D'
                 },
                 { 
                   step: '5', 
