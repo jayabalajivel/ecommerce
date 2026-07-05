@@ -37,7 +37,30 @@ export default function PaymentPage() {
     payment_ref: '',
   });
 
-  const deliveryFee = cartTotal >= 499 ? 0 : 49;
+  // Dynamic delivery fee calculation based on state and weight
+  const getDeliveryFee = () => {
+    if (cartTotal >= 799) return 0;
+    
+    const stateName = (formData.state || '').trim().toLowerCase().replace(/[\s\.\-_]/g, '');
+    if (!stateName) {
+      // Default to 49 if state not typed yet
+      return 49;
+    }
+    
+    if (stateName === 'tamilnadu' || stateName === 'tn') {
+      return 49;
+    }
+    
+    // Other state: ₹80 per kg calculated by product grams
+    const totalWeightGrams = cart.reduce((sum, item) => {
+      const weight = item.weight_grams ?? 100;
+      return sum + (weight * item.qty);
+    }, 0);
+    
+    return Math.round((totalWeightGrams / 1000) * 80);
+  };
+
+  const deliveryFee = getDeliveryFee();
   const grandTotal = cartTotal + deliveryFee;
 
   // Generate RAW UPI string without encoding
@@ -113,7 +136,8 @@ export default function PaymentPage() {
         address: fullAddress,
         payment_ref: formData.payment_ref,
         screenshot_url,
-        notes: `Phone: ${formData.phone}` // Storing phone in notes as a fallback if needed
+        notes: `Phone: ${formData.phone}`, // Storing phone in notes as a fallback if needed
+        state: formData.state.trim()
       });
       
       setPlacedOrder(res.order);
@@ -262,6 +286,11 @@ export default function PaymentPage() {
                 <span>Delivery</span>
                 <span className={deliveryFee === 0 ? 'text-green-600 font-bold' : ''}>{deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`}</span>
               </div>
+              {deliveryFee > 0 && (
+                <p className="text-[10px] text-muted-foreground mt-0.5 text-right">
+                  * Tamil Nadu delivery: ₹49. Other states: ₹80/kg.
+                </p>
+              )}
               <div className="flex justify-between items-center pt-3 border-t border-border mt-3">
                 <span className="font-bold text-foreground">Total Payable</span>
                 <span className="text-2xl font-bold text-primary">₹{grandTotal}</span>

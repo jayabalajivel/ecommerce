@@ -264,6 +264,7 @@ export interface CreateOrderPayload {
   payment_ref: string;
   screenshot_url?: string;
   notes?: string;
+  state?: string;
 }
 
 export interface AdminSession {

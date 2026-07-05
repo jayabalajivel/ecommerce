@@ -30,7 +30,7 @@ router.post('/', requireAuth, async (req, res) => {
   const productIds = items.map(i => i.product_id || i.id);
   const { data: products, error: fetchErr } = await supabase
     .from('products')
-    .select('id, name, price, stock_qty, weight_label')
+    .select('id, name, price, stock_qty, weight_label, weight_grams')
     .in('id', productIds);
   if (fetchErr) return res.status(500).json({ error: fetchErr.message });
 
@@ -50,7 +50,34 @@ router.post('/', requireAuth, async (req, res) => {
     const product = productMap[item.product_id || item.id];
     return sum + (product.price * item.qty);
   }, 0);
-  const delivery_fee = subtotal >= 499 ? 0 : 49;
+
+  // Calculate delivery fee: free above 799, Tamil Nadu is 49, others weight-based (80 Rs/kg)
+  let delivery_fee = 0;
+  if (subtotal < 799) {
+    let orderState = (req.body.state || '').trim();
+    if (!orderState && address) {
+      // Extract from concatenated address "Door No: ..., ..., ..., ..., State - Pincode"
+      const parts = address.split(',');
+      if (parts.length >= 5) {
+        const lastPart = parts[parts.length - 1];
+        const statePart = lastPart.split('-')[0].trim();
+        orderState = statePart;
+      }
+    }
+
+    const normState = orderState.toLowerCase().replace(/[\s\.\-_]/g, '');
+    if (normState === 'tamilnadu' || normState === 'tn') {
+      delivery_fee = 49;
+    } else {
+      const totalWeightGrams = items.reduce((sum, item) => {
+        const product = productMap[item.product_id || item.id];
+        const weight = product.weight_grams ?? 100;
+        return sum + (weight * item.qty);
+      }, 0);
+      delivery_fee = Math.round((totalWeightGrams / 1000) * 80);
+    }
+  }
+
   const total = subtotal + delivery_fee;
 
   // Generate order ID

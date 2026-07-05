@@ -148,7 +148,7 @@ export default function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-border">
             {[
               { icon: '🌿', label: '100% Natural', sub: 'No additives,No preservatives' },
-              { icon: '🚚', label: 'Free Delivery', sub: 'Orders above ₹499' },
+              { icon: '🚚', label: 'Free Delivery', sub: 'Orders above ₹799' },
               { icon: '🔒', label: 'Secure Payment', sub: 'UPI ' },
               { icon: '♻️', label: 'Eco Packaging', sub: 'Biodegradable' },
             ].map(f => (
@@ -233,7 +233,9 @@ export default function HomePage() {
                   <div className="flex items-center justify-between mt-auto">
                     <div>
                       <span className="text-base font-bold text-foreground">₹{product.price}</span>
-                      <span className="text-xs text-muted-foreground line-through ml-1">₹{product.original_price}</span>
+                      {product.original_price > product.price && (
+                        <span className="text-xs text-muted-foreground line-through ml-1">₹{product.original_price}</span>
+                      )}
                     </div>
                     <button
                       onClick={(e) => {

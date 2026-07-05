@@ -121,18 +121,30 @@ export async function sendReceiptEmail(order, customerEmail) {
 
   if (SMTP_HOST && SMTP_USER && SMTP_PASS) {
     try {
-      const transporter = nodemailer.createTransport({
-        host: SMTP_HOST,
-        port: parseInt(SMTP_PORT || '587'),
-        secure: parseInt(SMTP_PORT || '587') === 465,
-        auth: {
-          user: SMTP_USER,
-          pass: SMTP_PASS,
-        },
-        tls: {
-          rejectUnauthorized: false
-        }
-      });
+      const isGmail = SMTP_HOST.toLowerCase().includes('gmail');
+      const passToUse = isGmail ? SMTP_PASS.replace(/\s+/g, '') : SMTP_PASS;
+      const transporter = nodemailer.createTransport(
+        isGmail
+          ? {
+              service: 'gmail',
+              auth: {
+                user: SMTP_USER,
+                pass: passToUse,
+              },
+            }
+          : {
+              host: SMTP_HOST,
+              port: parseInt(SMTP_PORT || '587'),
+              secure: parseInt(SMTP_PORT || '587') === 465,
+              auth: {
+                user: SMTP_USER,
+                pass: SMTP_PASS,
+              },
+              tls: {
+                rejectUnauthorized: false
+              }
+            }
+      );
 
       const mailOptions = {
         from: SMTP_FROM || `"Madurai Madasamy Idlypodi" <${SMTP_USER}>`,

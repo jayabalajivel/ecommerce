@@ -183,7 +183,9 @@ export default function AdminProducts() {
                   <p className="text-xs text-muted-foreground line-clamp-1">{product.description}</p>
                   <div className="flex items-center gap-3 mt-1 flex-wrap">
                     <span className="text-sm font-bold text-primary">₹{product.price}</span>
-                    <span className="text-xs line-through text-muted-foreground">₹{product.original_price}</span>
+                    {product.original_price > product.price && (
+                      <span className="text-xs line-through text-muted-foreground">₹{product.original_price}</span>
+                    )}
                     <span className="text-xs text-muted-foreground">{product.weight_label} ({product.weight_grams}g)</span>
                     <span className="text-xs text-muted-foreground capitalize bg-muted px-2 py-0.5 rounded-full">{product.category_id}</span>
                   </div>

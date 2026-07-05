@@ -116,7 +116,8 @@ export default function CategoryPage() {
               const inCart = cart.find(i => i.id === product.id);
               const isLowStock = product.stock_qty > 0 && product.stock_qty <= 10;
               const isOutOfStock = product.stock_qty === 0;
-              const discount = Math.round((1 - product.price / product.original_price) * 100);
+              const hasDiscount = product.original_price && product.original_price > product.price;
+              const discount = hasDiscount ? Math.round((1 - product.price / product.original_price) * 100) : 0;
 
               return (
                 <div key={product.id} className="bg-card rounded-2xl border border-border overflow-hidden hover:shadow-lg transition-all duration-300 group flex flex-col">
@@ -146,8 +147,12 @@ export default function CategoryPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <span className="text-base font-bold text-foreground">₹{product.price}</span>
-                        <span className="text-xs text-muted-foreground line-through ml-1">₹{product.original_price}</span>
-                        <div className="text-xs text-green-600 font-medium">{discount}% off</div>
+                        {hasDiscount && (
+                          <>
+                            <span className="text-xs text-muted-foreground line-through ml-1">₹{product.original_price}</span>
+                            <div className="text-xs text-green-600 font-medium">{discount}% off</div>
+                          </>
+                        )}
                       </div>
                       {!isOutOfStock && (
                         inCart ? (

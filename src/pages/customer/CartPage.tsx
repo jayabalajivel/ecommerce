@@ -7,7 +7,7 @@ import { SEO } from '../../components/SEO';
 export default function CartPage() {
   const { cart, cartTotal, cartCount, updateQty, removeItem } = useCart();
   const navigate = useNavigate();
-  const deliveryFee = cartTotal >= 499 ? 0 : 49;
+  const deliveryFee = cartTotal >= 799 ? 0 : 49;
   const grandTotal = cartTotal + deliveryFee;
 
   if (cart.length === 0) {
@@ -110,8 +110,13 @@ export default function CartPage() {
                   {deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`}
                 </span>
               </div>
-              {cartTotal < 499 && (
-                <p className="text-xs text-accent mt-1">Add ₹{499 - cartTotal} more for free delivery!</p>
+              {cartTotal < 799 && (
+                <p className="text-xs text-accent mt-1">Add ₹{799 - cartTotal} more for free delivery!</p>
+              )}
+              {deliveryFee > 0 && (
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  * Tamil Nadu delivery: ₹49. Other states: ₹80/kg.
+                </p>
               )}
             </div>
             <div className="border-t border-border pt-3 mb-5">
