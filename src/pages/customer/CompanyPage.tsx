@@ -123,6 +123,14 @@ export default function CompanyPage() {
 
       {/* 2. Our Journey Section */}
       <section className="py-16 sm:py-24 bg-card border-b border-border">
+        {/* Preload Slideshow Images for zero-latency transitions */}
+        <div className="hidden" aria-hidden="true">
+          <img src={about1} loading="eager" alt="" />
+          <img src={about2} loading="eager" alt="" />
+          <img src={about3} loading="eager" alt="" />
+          <img src={about4} loading="eager" alt="" />
+          <img src={about5} loading="eager" alt="" />
+        </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-12 items-center">
           <div className="relative order-2 md:order-1">
             <div 

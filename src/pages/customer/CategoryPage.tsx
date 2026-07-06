@@ -8,8 +8,9 @@ import { SEO } from '../../components/SEO';
 
 const getOptimizedImg = (url: string, w = 400, h = 300) => {
   if (!url) return '';
-  if (url.includes('unsplash.com') && !url.includes('?w=')) {
-    return `${url}?w=${w}&h=${h}&fit=crop&q=65&auto=format`;
+  if (url.includes('unsplash.com')) {
+    const baseUrl = url.split('?')[0];
+    return `${baseUrl}?w=${w}&h=${h}&fit=crop&q=60&auto=format`;
   }
   return url;
 };
@@ -144,30 +145,32 @@ export default function CategoryPage() {
                   <div className="p-4 flex flex-col flex-1">
                     <h4 className="font-semibold text-foreground text-sm mb-1 line-clamp-1">{product.name}</h4>
                     <p className="text-xs text-muted-foreground line-clamp-2 mb-3 flex-1">{product.description}</p>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-base font-bold text-foreground">₹{product.price}</span>
+                    <div className="flex flex-wrap items-center justify-between gap-2 mt-auto">
+                      <div className="min-w-[70px]">
+                        <div className="flex items-baseline gap-1 flex-wrap">
+                          <span className="text-base font-bold text-foreground">₹{product.price}</span>
+                          {hasDiscount && (
+                            <span className="text-xs text-muted-foreground line-through">₹{product.original_price}</span>
+                          )}
+                        </div>
                         {hasDiscount && (
-                          <>
-                            <span className="text-xs text-muted-foreground line-through ml-1">₹{product.original_price}</span>
-                            <div className="text-xs text-green-600 font-medium">{discount}% off</div>
-                          </>
+                          <div className="text-xs text-green-600 font-medium">{discount}% off</div>
                         )}
                       </div>
                       {!isOutOfStock && (
                         inCart ? (
-                          <div className="flex items-center gap-1 bg-primary/10 rounded-xl overflow-hidden">
+                          <div className="flex items-center bg-primary/10 rounded-xl overflow-hidden flex-shrink-0">
                             <button
                               onClick={() => { if (inCart.qty === 1) removeItem(product.id); else updateQty(product.id, -1); }}
-                              className="px-2.5 py-1.5 hover:bg-primary/20 transition-colors"
+                              className="px-2 py-1.5 hover:bg-primary/20 transition-colors"
                             >
                               <Minus className="w-3 h-3 text-primary" />
                             </button>
-                            <span className="text-primary font-bold text-sm min-w-[1.5rem] text-center">{inCart.qty}</span>
+                            <span className="text-primary font-bold text-sm w-6 text-center select-none">{inCart.qty}</span>
                             <button
                               onClick={() => updateQty(product.id, 1)}
                               disabled={inCart.qty >= product.stock_qty}
-                              className="px-2.5 py-1.5 hover:bg-primary/20 transition-colors disabled:opacity-40"
+                              className="px-2 py-1.5 hover:bg-primary/20 transition-colors disabled:opacity-40"
                             >
                               <Plus className="w-3 h-3 text-primary" />
                             </button>
@@ -175,7 +178,7 @@ export default function CategoryPage() {
                         ) : (
                           <button
                             onClick={() => addToCart(product)}
-                            className="flex items-center gap-1 px-3 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-semibold hover:opacity-90 active:scale-95 transition-all"
+                            className="flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded-xl text-xs font-semibold hover:opacity-90 active:scale-95 transition-all flex-shrink-0"
                           >
                             <Plus className="w-3 h-3" /> Add
                           </button>

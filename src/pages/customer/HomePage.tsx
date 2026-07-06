@@ -19,8 +19,9 @@ import hero4 from '../../assets/hero_4.jpg';
 
 const getOptimizedImg = (url: string, w = 400, h = 300) => {
   if (!url) return '';
-  if (url.includes('unsplash.com') && !url.includes('?w=')) {
-    return `${url}?w=${w}&h=${h}&fit=crop&q=65&auto=format`;
+  if (url.includes('unsplash.com')) {
+    const baseUrl = url.split('?')[0];
+    return `${baseUrl}?w=${w}&h=${h}&fit=crop&q=60&auto=format`;
   }
   return url;
 };
@@ -107,6 +108,13 @@ export default function HomePage() {
         title="Premium Spices & Authentic Flavours" 
         description="Hand-sourced from the finest farms across India. Over 35 years of heritage in every jar. Discover our premium collection of authentic spices."
       />
+      {/* Preload Hero Images for zero-latency slider transitions */}
+      <div className="hidden" aria-hidden="true">
+        <img src={hero1} fetchPriority="high" loading="eager" alt="" />
+        <img src={hero2} loading="eager" alt="" />
+        <img src={hero3} loading="eager" alt="" />
+        <img src={hero4} loading="eager" alt="" />
+      </div>
       {/* Hero */}
       <section 
         className="relative overflow-hidden cursor-pointer"
