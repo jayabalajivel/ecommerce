@@ -14,6 +14,7 @@ import uploadRoutes from './routes/upload.js';
 import reviewRoutes from './routes/reviews.js';
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3001;
 
 // ─── Security middleware ─────────────────────────────────────

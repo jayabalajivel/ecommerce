@@ -123,28 +123,23 @@ export async function sendReceiptEmail(order, customerEmail) {
     try {
       const isGmail = SMTP_HOST.toLowerCase().includes('gmail');
       const passToUse = isGmail ? SMTP_PASS.replace(/\s+/g, '') : SMTP_PASS;
-      const transporter = nodemailer.createTransport(
-        isGmail
-          ? {
-              service: 'gmail',
-              auth: {
-                user: SMTP_USER,
-                pass: passToUse,
-              },
-            }
-          : {
-              host: SMTP_HOST,
-              port: parseInt(SMTP_PORT || '587'),
-              secure: parseInt(SMTP_PORT || '587') === 465,
-              auth: {
-                user: SMTP_USER,
-                pass: SMTP_PASS,
-              },
-              tls: {
-                rejectUnauthorized: false
-              }
-            }
-      );
+      
+      const transporter = nodemailer.createTransport({
+        host: SMTP_HOST,
+        port: parseInt(SMTP_PORT || '587'),
+        secure: parseInt(SMTP_PORT || '587') === 465,
+        auth: {
+          user: SMTP_USER,
+          pass: passToUse,
+        },
+        tls: {
+          rejectUnauthorized: false,
+          minVersion: 'TLSv1.2'
+        },
+        connectionTimeout: 10000, // 10 seconds connection timeout
+        greetingTimeout: 10000,
+        socketTimeout: 15000
+      });
 
       const mailOptions = {
         from: SMTP_FROM || `"Madurai Madasamy Idlypodi" <${SMTP_USER}>`,
