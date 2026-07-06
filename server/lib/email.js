@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dns from 'dns';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -135,6 +136,9 @@ export async function sendReceiptEmail(order, customerEmail) {
         tls: {
           rejectUnauthorized: false,
           minVersion: 'TLSv1.2'
+        },
+        lookup: (hostname, options, callback) => {
+          dns.lookup(hostname, { family: 4 }, callback);
         },
         connectionTimeout: 10000, // 10 seconds connection timeout
         greetingTimeout: 10000,
