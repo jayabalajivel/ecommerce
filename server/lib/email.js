@@ -161,6 +161,7 @@ export async function sendReceiptEmail(order, customerEmail) {
         html: htmlContent,
       };
 
+      console.log(`[Email Service] Attempting to send email via ${host}:${port} using user ${user}...`);
       const info = await transporter.sendMail(mailOptions);
       console.log(`[Email Service] Receipt email sent successfully to ${emailToUse}. Message ID: ${info.messageId}`);
       return;
