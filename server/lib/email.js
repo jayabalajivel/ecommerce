@@ -118,19 +118,28 @@ export async function sendReceiptEmail(order, customerEmail) {
     </html>
   `;
 
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM } = process.env;
+  const { 
+    RESEND_HOST, RESEND_PORT, RESEND_USER, RESEND_PASS, RESEND_FROM,
+    SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM 
+  } = process.env;
 
-  if (SMTP_HOST && SMTP_USER && SMTP_PASS) {
+  const host = RESEND_HOST || SMTP_HOST;
+  const port = RESEND_PORT || SMTP_PORT;
+  const user = RESEND_USER || SMTP_USER;
+  const pass = RESEND_PASS || SMTP_PASS;
+  const from = RESEND_FROM || SMTP_FROM;
+
+  if (host && user && pass) {
     try {
-      const isGmail = SMTP_HOST.toLowerCase().includes('gmail');
-      const passToUse = isGmail ? SMTP_PASS.replace(/\s+/g, '') : SMTP_PASS;
+      const isGmail = host.toLowerCase().includes('gmail');
+      const passToUse = isGmail ? pass.replace(/\s+/g, '') : pass;
       
       const transporter = nodemailer.createTransport({
-        host: SMTP_HOST,
-        port: parseInt(SMTP_PORT || '587'),
-        secure: parseInt(SMTP_PORT || '587') === 465,
+        host: host,
+        port: parseInt(port || '587'),
+        secure: parseInt(port || '587') === 465,
         auth: {
-          user: SMTP_USER,
+          user: user,
           pass: passToUse,
         },
         tls: {
@@ -146,7 +155,7 @@ export async function sendReceiptEmail(order, customerEmail) {
       });
 
       const mailOptions = {
-        from: SMTP_FROM || `"Madurai Madasamy Idlypodi" <${SMTP_USER}>`,
+        from: from || `"Madurai Madasamy Idlypodi" <${user}>`,
         to: emailToUse,
         subject: `Your Receipt for Order ${order.id} - Madurai Madasamy Idlypodi`,
         html: htmlContent,
@@ -156,7 +165,7 @@ export async function sendReceiptEmail(order, customerEmail) {
       console.log(`[Email Service] Receipt email sent successfully to ${emailToUse}. Message ID: ${info.messageId}`);
       return;
     } catch (err) {
-      console.error('[Email Service] Failed to send email via SMTP, falling back to local file log:', err);
+      console.error('[Email Service] Failed to send email via SMTP/Resend, falling back to local file log:', err);
     }
   }
 
