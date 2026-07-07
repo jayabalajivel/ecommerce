@@ -185,24 +185,28 @@ export async function sendReceiptEmail(order, customerEmail) {
     }
   }
 
-  // 1. Try Resend/Mailjet first
-  let sent = await trySendMail({
-    host: RESEND_HOST,
-    port: RESEND_PORT,
-    user: RESEND_USER,
-    pass: RESEND_PASS,
-    from: RESEND_FROM
-  });
-
-  // 2. Try Gmail SMTP if Mailjet failed
-  if (!sent && SMTP_HOST) {
-    console.log(`[Email Service] Primary SMTP failed. Attempting fallback SMTP (Gmail)...`);
+  // 1. Try Gmail SMTP first (using official Google servers for gmail.com senders to satisfy DMARC/SPF policies)
+  let sent = false;
+  if (SMTP_HOST) {
+    console.log(`[Email Service] Attempting SMTP (Gmail) first...`);
     sent = await trySendMail({
       host: SMTP_HOST,
       port: SMTP_PORT,
       user: SMTP_USER,
       pass: SMTP_PASS,
       from: SMTP_FROM
+    });
+  }
+
+  // 2. Try Resend/Mailjet as fallback if Gmail fails
+  if (!sent && RESEND_HOST) {
+    console.log(`[Email Service] Fallback to Resend/Mailjet...`);
+    sent = await trySendMail({
+      host: RESEND_HOST,
+      port: RESEND_PORT,
+      user: RESEND_USER,
+      pass: RESEND_PASS,
+      from: RESEND_FROM
     });
   }
 
