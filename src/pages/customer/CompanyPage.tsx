@@ -32,39 +32,12 @@ export default function CompanyPage() {
     about5
   ];
   const [aboutIndex, setAboutIndex] = React.useState(0);
-  const [isPaused, setIsPaused] = React.useState(false);
-  const timerRef = React.useRef<NodeJS.Timeout | null>(null);
-  const pauseTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
-
-  const startTimer = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
+  React.useEffect(() => {
+    const interval = setInterval(() => {
       setAboutIndex((prev) => (prev + 1) % aboutImages.length);
     }, 3000);
-  };
-
-  React.useEffect(() => {
-    if (!isPaused) {
-      startTimer();
-    }
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [isPaused]);
-
-  const handleTouch = () => {
-    setIsPaused(true);
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
-    
-    // Resume after 5 seconds of inactivity
-    pauseTimeoutRef.current = setTimeout(() => {
-      setIsPaused(false);
-    }, 3000);
-  };
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="bg-background min-h-screen text-foreground selection:bg-accent/30 selection:text-foreground">
@@ -129,23 +102,13 @@ export default function CompanyPage() {
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-12 items-center">
           <div className="relative order-2 md:order-1">
-            <div 
-              className="relative w-full rounded-3xl overflow-hidden shadow-xl border border-border aspect-[4/3] cursor-pointer group"
-              onClick={handleTouch}
-              onTouchStart={handleTouch}
-              onMouseEnter={handleTouch}
-            >
+            <div className="relative w-full rounded-3xl overflow-hidden shadow-xl border border-border aspect-[4/3] group">
               <img 
                 loading="lazy"
                 src={aboutImages[aboutIndex]} 
                 alt="Traditional cooking ingredients slideshow" 
                 className="w-full h-full object-cover transition-all duration-700 ease-in-out transform hover:scale-105"
               />
-              {isPaused && (
-                <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-full font-medium animate-pulse">
-                  ⏸ Paused
-                </div>
-              )}
               {/* Dots */}
               <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-1.5 z-20">
                 {aboutImages.map((_, i) => (
@@ -154,7 +117,6 @@ export default function CompanyPage() {
                     onClick={(e) => {
                       e.stopPropagation();
                       setAboutIndex(i);
-                      handleTouch();
                     }}
                     className={`w-2 h-2 rounded-full transition-all ${
                       aboutIndex === i ? 'bg-brand-gold w-4' : 'bg-white/50 hover:bg-white'

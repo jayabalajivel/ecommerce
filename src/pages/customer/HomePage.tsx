@@ -40,39 +40,12 @@ export default function HomePage() {
 
   const heroImages = [hero1, hero2, hero3, hero4];
   const [heroIndex, setHeroIndex] = useState(0);
-  const [isHeroPaused, setIsHeroPaused] = useState(false);
-  const heroTimerRef = React.useRef<NodeJS.Timeout | null>(null);
-  const heroPauseTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
-
-  const startHeroTimer = () => {
-    if (heroTimerRef.current) clearInterval(heroTimerRef.current);
-    heroTimerRef.current = setInterval(() => {
+  useEffect(() => {
+    const interval = setInterval(() => {
       setHeroIndex((prev) => (prev + 1) % heroImages.length);
     }, 2000);
-  };
-
-  useEffect(() => {
-    if (!isHeroPaused) {
-      startHeroTimer();
-    }
-    return () => {
-      if (heroTimerRef.current) clearInterval(heroTimerRef.current);
-    };
-  }, [isHeroPaused]);
-
-  const handleHeroTouch = () => {
-    setIsHeroPaused(true);
-    if (heroTimerRef.current) {
-      clearInterval(heroTimerRef.current);
-      heroTimerRef.current = null;
-    }
-    if (heroPauseTimeoutRef.current) clearTimeout(heroPauseTimeoutRef.current);
-    
-    // Resume after 5 seconds
-    heroPauseTimeoutRef.current = setTimeout(() => {
-      setIsHeroPaused(false);
-    }, 5000);
-  };
+    return () => clearInterval(interval);
+  }, []);
 
   const { addToCart } = useCart();
   const navigate = useNavigate();
@@ -113,12 +86,7 @@ export default function HomePage() {
         <img src={hero1} fetchPriority="high" loading="eager" alt="" />
       </div>
       {/* Hero */}
-      <section 
-        className="relative overflow-hidden cursor-pointer"
-        onClick={handleHeroTouch}
-        onTouchStart={handleHeroTouch}
-        onMouseEnter={handleHeroTouch}
-      >
+      <section className="relative overflow-hidden cursor-pointer">
         <div
           className="absolute inset-0 transition-all duration-1000 ease-in-out"
           style={{
@@ -127,11 +95,6 @@ export default function HomePage() {
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/80 to-transparent" />
-        {isHeroPaused && (
-          <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-full font-medium z-20 animate-pulse">
-            ⏸ Background Paused
-          </div>
-        )}
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
           <p className="text-xs tracking-[0.25em] uppercase text-accent font-semibold mb-4">Taste of Tradition in Every spoon</p>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight" style={{ fontFamily: "'Playfair Display', serif" }}>
