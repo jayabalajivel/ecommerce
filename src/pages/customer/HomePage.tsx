@@ -21,7 +21,7 @@ const getOptimizedImg = (url: string, w = 400, h = 300) => {
   if (!url) return '';
   if (url.includes('unsplash.com')) {
     const baseUrl = url.split('?')[0];
-    return `${baseUrl}?w=${w}&h=${h}&fit=crop&q=60&auto=format`;
+    return `${baseUrl}?w=${w}&h=${h}&fit=crop&q=50&fm=webp&auto=compress,format`;
   }
   return url;
 };

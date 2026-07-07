@@ -131,13 +131,8 @@ export async function sendReceiptEmail(order, customerEmail) {
     SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM 
   } = process.env;
 
-  const host = RESEND_HOST || SMTP_HOST;
-  const port = RESEND_PORT || SMTP_PORT;
-  const user = RESEND_USER || SMTP_USER;
-  const pass = RESEND_PASS || SMTP_PASS;
-  const from = RESEND_FROM || SMTP_FROM;
-
-  if (host && user && pass) {
+  async function trySendMail({ host, port, user, pass, from }) {
+    if (!host || !user || !pass) return false;
     try {
       const isGmail = host.toLowerCase().includes('gmail');
       const passToUse = isGmail ? pass.replace(/\s+/g, '') : pass;
@@ -157,7 +152,7 @@ export async function sendReceiptEmail(order, customerEmail) {
         lookup: (hostname, options, callback) => {
           dns.lookup(hostname, { family: 4 }, callback);
         },
-        connectionTimeout: 10000, // 10 seconds connection timeout
+        connectionTimeout: 10000,
         greetingTimeout: 10000,
         socketTimeout: 15000
       });
@@ -172,11 +167,35 @@ export async function sendReceiptEmail(order, customerEmail) {
       console.log(`[Email Service] Attempting to send email via ${host}:${port} using user ${user}...`);
       const info = await transporter.sendMail(mailOptions);
       console.log(`[Email Service] Receipt email sent successfully to ${emailToUse}. Message ID: ${info.messageId}`);
-      return;
+      return true;
     } catch (err) {
-      console.error('[Email Service] Failed to send email via SMTP/Resend, falling back to local file log:', err);
+      console.error(`[Email Service] Failed to send email via ${host}:`, err);
+      return false;
     }
   }
+
+  // 1. Try Resend/Mailjet first
+  let sent = await trySendMail({
+    host: RESEND_HOST,
+    port: RESEND_PORT,
+    user: RESEND_USER,
+    pass: RESEND_PASS,
+    from: RESEND_FROM
+  });
+
+  // 2. Try Gmail SMTP if Mailjet failed
+  if (!sent && SMTP_HOST) {
+    console.log(`[Email Service] Primary SMTP failed. Attempting fallback SMTP (Gmail)...`);
+    sent = await trySendMail({
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      user: SMTP_USER,
+      pass: SMTP_PASS,
+      from: SMTP_FROM
+    });
+  }
+
+  if (sent) return;
 
   // Fallback: Write HTML file locally and log to console
   try {
