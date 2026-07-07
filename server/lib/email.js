@@ -110,6 +110,9 @@ export async function sendReceiptEmail(order, customerEmail) {
                 <span>Delivery Fee:</span>
                 <span>${order.delivery_fee === 0 ? 'FREE' : `₹${order.delivery_fee}`}</span>
               </div>
+              <div style="font-size: 11px; color: #888888; text-align: right; margin-top: 2px; font-style: italic; font-weight: 500;">
+                *delivery expected 3-7 working days
+              </div>
               <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; color: #8b0000; border-top: 1.5px solid #dddddd; padding-top: 10px; margin-top: 10px;">
                 <span>Total Amount:</span>
                 <span>₹${order.total}</span>
