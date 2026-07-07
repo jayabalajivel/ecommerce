@@ -71,7 +71,7 @@ router.post('/verify-otp', async (req, res) => {
   // Upsert profile in DB
   const { error: profileError } = await supabase
     .from('profiles')
-    .upsert({ phone: trimmedEmail, role }, { onConflict: 'phone' });
+    .upsert({ phone: trimmedEmail, email: trimmedEmail, role }, { onConflict: 'phone' });
 
   if (profileError) {
     console.error('Profile upsert error:', profileError);
@@ -108,7 +108,7 @@ router.post('/google-login', async (req, res) => {
   // Upsert profile in DB
   const { error: profileError } = await supabase
     .from('profiles')
-    .upsert({ phone: trimmedEmail, role }, { onConflict: 'phone' });
+    .upsert({ phone: trimmedEmail, email: trimmedEmail, role }, { onConflict: 'phone' });
 
   if (profileError) {
     console.error('Profile upsert error:', profileError);

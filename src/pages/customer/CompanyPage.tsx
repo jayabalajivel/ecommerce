@@ -123,13 +123,9 @@ export default function CompanyPage() {
 
       {/* 2. Our Journey Section */}
       <section className="py-16 sm:py-24 bg-card border-b border-border">
-        {/* Preload Slideshow Images for zero-latency transitions */}
+        {/* Preload only the first Slideshow Image eagerly for faster initial page load */}
         <div className="hidden" aria-hidden="true">
           <img src={about1} loading="eager" alt="" />
-          <img src={about2} loading="eager" alt="" />
-          <img src={about3} loading="eager" alt="" />
-          <img src={about4} loading="eager" alt="" />
-          <img src={about5} loading="eager" alt="" />
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-12 items-center">
           <div className="relative order-2 md:order-1">
@@ -169,7 +165,7 @@ export default function CompanyPage() {
             </div>
             {/* Stamp Card */}
             <div className="absolute -bottom-6 -right-6 bg-brand-gold text-brand-red rounded-2xl p-5 shadow-2xl border border-brand-gold/40 flex flex-col items-center justify-center">
-              <span className="text-3xl font-extrabold font-serif">35+</span>
+              <span className="text-3xl font-extrabold font-serif">6+</span>
               <span className="text-xs font-bold uppercase tracking-wider text-brand-red/80">Years of Love</span>
             </div>
           </div>

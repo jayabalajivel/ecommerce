@@ -45,7 +45,7 @@ export async function sendReceiptEmail(order, customerEmail) {
           <!-- Banner / Header -->
           <div style="background: linear-gradient(135deg, #8b0000 0%, #a30000 100%); padding: 35px 30px; text-align: center; color: #ffffff;">
             <div style="font-size: 26px; font-weight: 800; letter-spacing: 1px; margin-bottom: 5px; text-transform: uppercase;">
-              🌶️ MADURAI MADASAMY IDLYPODI
+              MADURAI MADASAMY IDLYPODI
             </div>
             <div style="font-size: 14px; opacity: 0.9; text-transform: uppercase; tracking-spacing: 2px;">
               Order Successful
@@ -97,6 +97,14 @@ export async function sendReceiptEmail(order, customerEmail) {
               <div style="display: flex; justify-content: space-between;">
                 <span>Subtotal:</span>
                 <span>₹${order.subtotal}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span>CGST (2.5%):</span>
+                <span>₹${(order.subtotal * 0.025).toFixed(2)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span>SGST (2.5%):</span>
+                <span>₹${(order.subtotal * 0.025).toFixed(2)}</span>
               </div>
               <div style="display: flex; justify-content: space-between;">
                 <span>Delivery Fee:</span>

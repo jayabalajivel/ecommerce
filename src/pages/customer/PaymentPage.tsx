@@ -54,10 +54,12 @@ export default function PaymentPage() {
   };
 
   const deliveryFee = getDeliveryFee();
-  const grandTotal = cartTotal + deliveryFee;
+  const cgst = Math.round(cartTotal * 0.025 * 100) / 100;
+  const sgst = Math.round(cartTotal * 0.025 * 100) / 100;
+  const grandTotal = Math.round((cartTotal + cgst + sgst + deliveryFee) * 100) / 100;
 
   // Generate RAW UPI string without encoding
-  const upiLink = `upi://pay?pa=6374948477-2@ybl&pn=Jayabalaji&am=${grandTotal}&cu=INR`;
+  const upiLink = `upi://pay?pa=mahesw1214@oksbi&pn=Maheswari&am=${grandTotal}&cu=INR`;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     let value = e.target.value;
@@ -216,6 +218,14 @@ export default function PaymentPage() {
                 <span>₹{placedOrder.subtotal}</span>
               </div>
               <div className="flex justify-between text-gray-600">
+                <span>CGST (2.5%)</span>
+                <span>₹{(placedOrder.subtotal * 0.025).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>SGST (2.5%)</span>
+                <span>₹{(placedOrder.subtotal * 0.025).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
                 <span>Delivery Fee</span>
                 <span>{placedOrder.delivery_fee === 0 ? 'FREE' : `₹${placedOrder.delivery_fee}`}</span>
               </div>
@@ -279,11 +289,20 @@ export default function PaymentPage() {
                 <span>Delivery</span>
                 <span className={deliveryFee === 0 ? 'text-green-600 font-bold' : ''}>{deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`}</span>
               </div>
+              <p className="text-[11px] text-muted-foreground font-semibold mt-0.5 text-right">
+                *delivery expected 3-7 working days
+              </p>
               {deliveryFee > 0 && (
                 <p className="text-[10px] text-muted-foreground mt-0.5 text-right">
                   * Tamil Nadu delivery: ₹50. Other states: ₹100.
                 </p>
               )}
+              <div className="flex justify-between text-sm text-muted-foreground pt-1 border-t border-border/50">
+                <span>CGST (2.5%)</span><span>₹{cgst.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-sm text-muted-foreground">
+                <span>SGST (2.5%)</span><span>₹{sgst.toFixed(2)}</span>
+              </div>
               <div className="flex justify-between items-center pt-3 border-t border-border mt-3">
                 <span className="font-bold text-foreground">Total Payable</span>
                 <span className="text-2xl font-bold text-primary">₹{grandTotal}</span>

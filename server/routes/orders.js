@@ -73,7 +73,9 @@ router.post('/', requireAuth, async (req, res) => {
     }
   }
 
-  const total = subtotal + delivery_fee;
+  const cgst = Math.round(subtotal * 0.025 * 100) / 100;
+  const sgst = Math.round(subtotal * 0.025 * 100) / 100;
+  const total = Math.round((subtotal + cgst + sgst + delivery_fee) * 100) / 100;
 
   // Generate order ID
   const orderId = 'ORD-' + Math.floor(10000 + Math.random() * 90000);

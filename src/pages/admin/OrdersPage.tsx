@@ -114,6 +114,8 @@ export default function AdminOrders() {
 
           <div class="totals">
             <div><span>Subtotal:</span> <span>Rs. ${order.subtotal}</span></div>
+            <div><span>CGST (2.5%):</span> <span>Rs. ${(order.subtotal * 0.025).toFixed(2)}</span></div>
+            <div><span>SGST (2.5%):</span> <span>Rs. ${(order.subtotal * 0.025).toFixed(2)}</span></div>
             <div><span>Delivery Fee:</span> <span>${order.delivery_fee === 0 ? 'FREE' : `Rs. ${order.delivery_fee}`}</span></div>
             <div class="grand"><span>Grand Total:</span> <span>Rs. ${order.total}</span></div>
           </div>

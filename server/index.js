@@ -65,7 +65,7 @@ app.use((err, _req, res, _next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`\n🌶️  SpiceKraft API running on http://localhost:${PORT}`);
+  console.log(`\nSpiceKraft API running on http://localhost:${PORT}`);
   console.log(`   Admin phones: ${process.env.ADMIN_PHONES || '(not set)'}`);
   console.log(`   Supabase: ${process.env.SUPABASE_URL ? '✅ configured' : '❌ NOT configured'}\n`);
 });

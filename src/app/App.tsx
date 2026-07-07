@@ -20,7 +20,7 @@ function LoadingFallback() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-4">
-        <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-3xl animate-pulse">🌶️</div>
+        <img src={logoImg} alt="Logo" className="w-16 h-16 object-contain rounded-2xl animate-pulse" />
         <p className="text-muted-foreground text-sm">Loading...</p>
       </div>
     </div>

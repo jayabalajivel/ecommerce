@@ -108,12 +108,9 @@ export default function HomePage() {
         title="Premium Spices & Authentic Flavours" 
         description="Hand-sourced from the finest farms across India. Over 35 years of heritage in every jar. Discover our premium collection of authentic spices."
       />
-      {/* Preload Hero Images for zero-latency slider transitions */}
+      {/* Preload only the first Hero Image eagerly for faster initial page load */}
       <div className="hidden" aria-hidden="true">
         <img src={hero1} fetchPriority="high" loading="eager" alt="" />
-        <img src={hero2} loading="eager" alt="" />
-        <img src={hero3} loading="eager" alt="" />
-        <img src={hero4} loading="eager" alt="" />
       </div>
       {/* Hero */}
       <section 
@@ -163,7 +160,7 @@ export default function HomePage() {
               { icon: '🌿', label: '100% Natural', sub: 'No additives,No preservatives' },
               { icon: '🚚', label: 'Free Delivery', sub: 'Orders above ₹799' },
               { icon: '🔒', label: 'Secure Payment', sub: 'UPI ' },
-              { icon: '♻️', label: 'Eco Packaging', sub: 'Biodegradable' },
+              { icon: '♻️', label: 'Safe Packaging', sub: 'Hygenic' },
             ].map(f => (
               <div key={f.label} className="flex items-center gap-3 px-4 sm:px-6 py-4">
                 <span className="text-2xl">{f.icon}</span>

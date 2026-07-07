@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ordersApi } from '../../lib/api';
 import type { Order, OrderStatus } from '../../lib/api';
+import logoImg from '../../assets/logo.jpg';
 import { SEO } from '../../components/SEO';
 import { Clock, RefreshCw, Truck, CheckCircle2, XCircle, ArrowRight } from 'lucide-react';
 
@@ -46,7 +47,7 @@ export default function MyOrdersPage() {
         </div>
       ) : orders.length === 0 ? (
         <div className="text-center py-16 bg-card border border-border rounded-2xl shadow-sm">
-          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary text-2xl">🌶️</div>
+          <img src={logoImg} alt="Logo" className="w-16 h-16 object-contain rounded-2xl mx-auto mb-4 animate-pulse" />
           <h3 className="text-lg font-bold text-foreground mb-1">No Orders Found</h3>
           <p className="text-muted-foreground text-sm max-w-sm mx-auto mb-6">You haven't placed any orders yet. Head back to the store to taste our premium spices!</p>
           <a href="/" className="px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity">
