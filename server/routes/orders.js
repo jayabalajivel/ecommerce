@@ -109,18 +109,24 @@ router.post('/', requireAuth, async (req, res) => {
     .from('orders')
     .select('id')
     .order('created_at', { ascending: false })
-    .limit(1);
+    .limit(50);
 
   if (latestErr) {
-    console.error('Failed to query latest order for sequence:', latestErr);
+    console.error('Failed to query latest orders for sequence:', latestErr);
   }
 
   let nextNum = 1;
   if (latestOrders && latestOrders.length > 0) {
-    const latestId = latestOrders[0].id;
-    const match = latestId.match(/ORD-(\d+)/i);
-    if (match) {
-      nextNum = parseInt(match[1], 10) + 1;
+    // Scan recent orders to find the latest one that matches sequential format (ORD- followed by 3 or 4 digits)
+    for (const ord of latestOrders) {
+      const match = ord.id.match(/^ORD-(\d{3,4})$/i);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (num < 10000) {
+          nextNum = num + 1;
+          break;
+        }
+      }
     }
   }
   const orderId = 'ORD-' + String(nextNum).padStart(3, '0');

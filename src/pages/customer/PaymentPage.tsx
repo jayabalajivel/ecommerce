@@ -8,6 +8,40 @@ import { SEO } from '../../components/SEO';
 import { QRCodeSVG } from 'qrcode.react';
 import logoImg from '../../assets/logo.jpg';
 
+const compressImage = (file: File): Promise<Blob> => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const max_width = 800; // Limit size to 800px width
+        const scale = max_width / img.width;
+        
+        if (img.width > max_width) {
+          canvas.width = max_width;
+          canvas.height = img.height * scale;
+        } else {
+          canvas.width = img.width;
+          canvas.height = img.height;
+        }
+        
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((blob) => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            resolve(file); // Fallback to original
+          }
+        }, 'image/jpeg', 0.6); // 60% quality jpeg
+      };
+    };
+  });
+};
+
 export default function PaymentPage() {
   const { cart, cartTotal, clearCart } = useCart();
   const { user } = useAuth();
@@ -141,7 +175,14 @@ export default function PaymentPage() {
       
       // Upload screenshot first if one was selected
       if (screenshotFile) {
-        const uploadRes = await ordersApi.uploadScreenshot(screenshotFile);
+        let fileToUpload = screenshotFile;
+        try {
+          const compressedBlob = await compressImage(screenshotFile);
+          fileToUpload = new File([compressedBlob], screenshotFile.name || 'screenshot.jpg', { type: 'image/jpeg' });
+        } catch (compErr) {
+          console.error('Image compression failed, using original file:', compErr);
+        }
+        const uploadRes = await ordersApi.uploadScreenshot(fileToUpload);
         screenshot_url = uploadRes.url;
       }
 
