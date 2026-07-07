@@ -131,7 +131,8 @@ export async function sendReceiptEmail(order, customerEmail) {
 
   const { 
     RESEND_HOST, RESEND_PORT, RESEND_USER, RESEND_PASS, RESEND_FROM,
-    SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM 
+    SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM,
+    RESEND_API_KEY
   } = process.env;
 
   async function trySendMail({ host, port, user, pass, from }) {
@@ -185,6 +186,38 @@ export async function sendReceiptEmail(order, customerEmail) {
     }
   }
 
+  async function trySendResendHttp(apiKey) {
+    if (!apiKey) return false;
+    try {
+      console.log(`[Email Service] Attempting HTTP POST to Resend API send endpoint (to bypass Render SMTP blocks)...`);
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          from: 'Madurai Madasamy Idlypodi <onboarding@resend.dev>',
+          to: [emailToUse],
+          subject: `Your Receipt for Order ${order.id} - Madurai Madasamy Idlypodi`,
+          html: htmlContent
+        })
+      });
+
+      const resData = await response.json();
+      if (response.ok) {
+        console.log(`[Email Service] Resend HTTP send success! ID:`, resData.id);
+        return true;
+      } else {
+        console.error(`[Email Service] Resend HTTP send failed:`, JSON.stringify(resData));
+        return false;
+      }
+    } catch (err) {
+      console.error(`[Email Service] Resend HTTP error:`, err);
+      return false;
+    }
+  }
+
   async function trySendMailHttp({ user, pass, from }) {
     if (!user || !pass) return false;
     try {
@@ -230,16 +263,24 @@ export async function sendReceiptEmail(order, customerEmail) {
     }
   }
 
-  // 1. Try Mailjet HTTP API first (bypasses Render SMTP port blocking since it uses port 443 HTTPS)
-  let sent = await trySendMailHttp({
-    user: RESEND_USER,
-    pass: RESEND_PASS,
-    from: RESEND_FROM
-  });
+  // 1. Try Resend HTTP API first (if API Key is configured)
+  let sent = false;
+  if (RESEND_API_KEY) {
+    sent = await trySendResendHttp(RESEND_API_KEY);
+  }
 
-  // 2. Try Gmail SMTP if Mailjet HTTP failed or is not configured (works on localhost)
+  // 2. Try Mailjet HTTP API next
+  if (!sent) {
+    sent = await trySendMailHttp({
+      user: RESEND_USER,
+      pass: RESEND_PASS,
+      from: RESEND_FROM
+    });
+  }
+
+  // 3. Try Gmail SMTP if HTTP senders failed or are not configured (works on localhost)
   if (!sent && SMTP_HOST) {
-    console.log(`[Email Service] HTTP send unavailable or failed. Attempting SMTP (Gmail)...`);
+    console.log(`[Email Service] HTTP senders unavailable or failed. Attempting SMTP (Gmail)...`);
     sent = await trySendMail({
       host: SMTP_HOST,
       port: SMTP_PORT,
@@ -249,7 +290,7 @@ export async function sendReceiptEmail(order, customerEmail) {
     });
   }
 
-  // 3. Try Mailjet SMTP if Gmail SMTP failed or is not configured
+  // 4. Try Mailjet SMTP fallback
   if (!sent && RESEND_HOST) {
     console.log(`[Email Service] Fallback to SMTP (Mailjet)...`);
     sent = await trySendMail({
