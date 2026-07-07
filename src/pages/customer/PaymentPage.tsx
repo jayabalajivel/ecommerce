@@ -86,24 +86,48 @@ export default function PaymentPage() {
     setError('');
 
     // Validation
-    if (!formData.customer_name.trim()) return setError('Customer Name is required');
-    if (!formData.phone.trim()) return setError('Phone Number is required');
-    if (!formData.email.trim()) return setError('Email Address is required');
-    if (!formData.door_no.trim()) return setError('Door / Flat No is required');
-    if (!formData.street.trim()) return setError('Street / Area is required');
-    if (!formData.city.trim()) return setError('City is required');
-    if (!formData.district.trim()) return setError('District is required');
-    if (!formData.state.trim()) return setError('State is required');
-    if (!formData.pincode.trim()) return setError('Pincode is required');
-    if (!formData.payment_ref.trim()) return setError('UPI Transaction ID is required');
-    if (formData.payment_ref.trim().length !== 12) {
-      return setError('UPI Transaction ID must be exactly 12 digits');
+    const nameTrimmed = formData.customer_name.trim();
+    if (!nameTrimmed) return setError('Customer Name is required');
+    if (!/^[a-zA-Z\s]+$/.test(nameTrimmed)) {
+      return setError('Customer Name must only contain letters and spaces (no numbers or special characters)');
     }
 
-    // Email format validation
+    const phoneTrimmed = formData.phone.trim();
+    if (!phoneTrimmed) return setError('Phone Number is required');
+    if (!/^\d{10}$/.test(phoneTrimmed)) {
+      return setError('Phone Number must be exactly 10 digits');
+    }
+
+    const emailTrimmed = formData.email.trim();
+    if (!emailTrimmed) return setError('Email Address is required');
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email.trim())) {
+    if (!emailRegex.test(emailTrimmed)) {
       return setError('Please enter a valid email address');
+    }
+
+    if (!formData.door_no.trim()) return setError('Door / Flat No is required');
+    if (!formData.street.trim()) return setError('Street / Area is required');
+
+    const cityTrimmed = formData.city.trim();
+    if (!cityTrimmed) return setError('City is required');
+    if (/^\d+$/.test(cityTrimmed)) return setError('City cannot be only numbers');
+
+    const districtTrimmed = formData.district.trim();
+    if (!districtTrimmed) return setError('District is required');
+    if (/^\d+$/.test(districtTrimmed)) return setError('District cannot be only numbers');
+
+    const stateTrimmed = formData.state.trim();
+    if (!stateTrimmed) return setError('State is required');
+    if (/^\d+$/.test(stateTrimmed)) return setError('State cannot be only numbers');
+
+    const pincodeTrimmed = formData.pincode.trim();
+    if (!pincodeTrimmed) return setError('Pincode is required');
+    if (!/^\d{6}$/.test(pincodeTrimmed)) return setError('Pincode must be exactly 6 digits');
+
+    const refTrimmed = formData.payment_ref.trim();
+    if (!refTrimmed) return setError('UPI Transaction ID is required');
+    if (!/^\d{12}$/.test(refTrimmed)) {
+      return setError('UPI Transaction ID must be exactly 12 digits');
     }
 
     if (!screenshotFile) {

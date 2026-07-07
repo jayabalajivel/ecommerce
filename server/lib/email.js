@@ -137,7 +137,13 @@ export async function sendReceiptEmail(order, customerEmail) {
       const isGmail = host.toLowerCase().includes('gmail');
       const passToUse = isGmail ? pass.replace(/\s+/g, '') : pass;
       
-      const transporter = nodemailer.createTransport({
+      const transportConfig = isGmail ? {
+        service: 'gmail',
+        auth: {
+          user: user,
+          pass: passToUse,
+        }
+      } : {
         host: host,
         port: parseInt(port || '587'),
         secure: parseInt(port || '587') === 465,
@@ -155,7 +161,9 @@ export async function sendReceiptEmail(order, customerEmail) {
         connectionTimeout: 10000,
         greetingTimeout: 10000,
         socketTimeout: 15000
-      });
+      };
+
+      const transporter = nodemailer.createTransport(transportConfig);
 
       const mailOptions = {
         from: from || `"Madurai Madasamy Idlypodi" <${user}>`,

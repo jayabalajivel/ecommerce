@@ -16,14 +16,41 @@ router.post('/', requireAuth, async (req, res) => {
   if (!items || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Cart items are required' });
   }
-  if (!customer_name) {
+
+  const nameTrimmed = (customer_name || '').trim();
+  if (!nameTrimmed) {
     return res.status(400).json({ error: 'Customer name is required' });
   }
+  if (!/^[a-zA-Z\s]+$/.test(nameTrimmed)) {
+    return res.status(400).json({ error: 'Customer name must only contain letters and spaces (no numbers or special characters)' });
+  }
+
   if (!address) {
     return res.status(400).json({ error: 'Delivery address is required' });
   }
-  if (!payment_ref) {
+
+  const emailTrimmed = (email || '').trim();
+  if (!emailTrimmed) {
+    return res.status(400).json({ error: 'Email address is required' });
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
+    return res.status(400).json({ error: 'Please enter a valid email address' });
+  }
+
+  const refTrimmed = (payment_ref || '').trim();
+  if (!refTrimmed) {
     return res.status(400).json({ error: 'UPI Transaction ID is required' });
+  }
+  if (!/^\d{12}$/.test(refTrimmed)) {
+    return res.status(400).json({ error: 'UPI Transaction ID must be exactly 12 digits' });
+  }
+
+  let phone = '';
+  if (notes && notes.startsWith('Phone: ')) {
+    phone = notes.replace('Phone: ', '').trim();
+    if (!/^\d{10}$/.test(phone)) {
+      return res.status(400).json({ error: 'Phone number must be exactly 10 digits' });
+    }
   }
 
   // Validate stock and compute totals
@@ -77,8 +104,26 @@ router.post('/', requireAuth, async (req, res) => {
   const sgst = Math.round(subtotal * 0.025 * 100) / 100;
   const total = Math.round((subtotal + cgst + sgst + delivery_fee) * 100) / 100;
 
-  // Generate order ID
-  const orderId = 'ORD-' + Math.floor(10000 + Math.random() * 90000);
+  // Generate order ID sequentially: ORD-001, ORD-002, etc.
+  const { data: latestOrders, error: latestErr } = await supabase
+    .from('orders')
+    .select('id')
+    .order('created_at', { ascending: false })
+    .limit(1);
+
+  if (latestErr) {
+    console.error('Failed to query latest order for sequence:', latestErr);
+  }
+
+  let nextNum = 1;
+  if (latestOrders && latestOrders.length > 0) {
+    const latestId = latestOrders[0].id;
+    const match = latestId.match(/ORD-(\d+)/i);
+    if (match) {
+      nextNum = parseInt(match[1], 10) + 1;
+    }
+  }
+  const orderId = 'ORD-' + String(nextNum).padStart(3, '0');
 
   // Build order items payload
   const orderItems = items.map(item => {
