@@ -181,16 +181,12 @@ function AppInner() {
             <Route
               path="/login"
               element={
-                user ? (
-                  <Navigate to="/" replace />
-                ) : (
-                  <LoginPage
-                    onSuccess={() => {
-                      const from = (location.state as any)?.from?.pathname || '/';
-                      navigate(from, { replace: true });
-                    }}
-                  />
-                )
+                <LoginPage
+                  onSuccess={() => {
+                    const from = (location.state as any)?.from?.pathname || '/';
+                    navigate(from, { replace: true });
+                  }}
+                />
               }
             />
             <Route path="/category/:categoryId" element={<CategoryPage />} />
