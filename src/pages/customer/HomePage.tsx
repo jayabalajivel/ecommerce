@@ -79,8 +79,8 @@ export default function HomePage() {
     {
       "@context": "https://schema.org",
       "@type": "Store",
-      "name": "Madurai Madasamy Idlypodi",
-      "image": "https://maduraimadasamyidlipodi.com/assets/logo.jpg",
+      "name": "Madurai Madasamy Idli Podi",
+      "image": "https://maduraimadasamyidlipodi.com/logo.jpg",
       "@id": "https://maduraimadasamyidlipodi.com",
       "url": "https://maduraimadasamyidlipodi.com",
       "priceRange": "₹120 - ₹400",
@@ -101,7 +101,7 @@ export default function HomePage() {
       "description": "Authentic homemade Madurai Style Idli Podi crafted with 100% natural ingredients, no preservatives, and traditional recipe.",
       "brand": {
         "@type": "Brand",
-        "name": "Madurai Madasamy Idlypodi"
+        "name": "Madurai Madasamy Idli Podi"
       },
       "offers": {
         "@type": "Offer",
