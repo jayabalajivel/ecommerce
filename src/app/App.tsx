@@ -27,28 +27,32 @@ function LoadingFallback() {
   );
 }
 
+// ─── Route Authorization Guard ──────────────────────────────
+function RequireAuth({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  const location = useLocation();
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <>{children}</>;
+}
+
 // ─── Inner App (has access to AuthContext & CartContext) ──────
 function AppInner() {
   const { user, isAdmin, isLoading, logout } = useAuth();
   const { cartCount } = useCart();
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Loading state
   if (isLoading) {
     return <LoadingFallback />;
   }
 
-  // Not logged in
-  if (!user) {
-    return (
-      <Suspense fallback={<LoadingFallback />}>
-        <LoginPage onSuccess={() => {}} />
-      </Suspense>
-    );
-  }
-
   // Admin view
-  if (isAdmin) {
+  if (user && isAdmin) {
     return (
       <Suspense fallback={<LoadingFallback />}>
         <AdminLayout />
@@ -78,16 +82,18 @@ function AppInner() {
             >
               Shop
             </NavLink>
-            <NavLink
-              to="/orders"
-              className={({ isActive }) =>
-                `px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  isActive ? 'bg-white/20 text-brand-gold font-bold' : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`
-              }
-            >
-              My Orders
-            </NavLink>
+            {user && (
+              <NavLink
+                to="/orders"
+                className={({ isActive }) =>
+                  `px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive ? 'bg-white/20 text-brand-gold font-bold' : 'text-white/80 hover:text-white hover:bg-white/10'
+                  }`
+                }
+              >
+                My Orders
+              </NavLink>
+            )}
             <NavLink
               to="/company"
               className={({ isActive }) =>
@@ -113,9 +119,18 @@ function AppInner() {
                 </span>
               )}
             </Link>
-            <button onClick={logout} className="p-2 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors" title="Sign out">
-              <LogOut className="w-4 h-4 text-white" />
-            </button>
+            {user ? (
+              <button onClick={logout} className="p-2 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors" title="Sign out">
+                <LogOut className="w-4 h-4 text-white" />
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                className="px-4 py-2 bg-brand-gold text-brand-green font-bold text-sm rounded-xl hover:opacity-90 transition-all"
+              >
+                Login
+              </Link>
+            )}
           </div>
         </div>
  
@@ -131,16 +146,18 @@ function AppInner() {
           >
             Shop
           </NavLink>
-          <NavLink
-            to="/orders"
-            className={({ isActive }) =>
-              `flex-1 py-2.5 text-center text-xs font-semibold transition-colors ${
-                isActive ? 'text-brand-gold bg-white/10' : 'text-white/80 hover:text-white'
-              }`
-            }
-          >
-            Orders
-          </NavLink>
+          {user && (
+            <NavLink
+              to="/orders"
+              className={({ isActive }) =>
+                `flex-1 py-2.5 text-center text-xs font-semibold transition-colors ${
+                  isActive ? 'text-brand-gold bg-white/10' : 'text-white/80 hover:text-white'
+                }`
+              }
+            >
+              Orders
+            </NavLink>
+          )}
           <NavLink
             to="/company"
             className={({ isActive }) =>
@@ -159,13 +176,27 @@ function AppInner() {
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<Navigate to="/" replace />} />
+            <Route
+              path="/login"
+              element={
+                user ? (
+                  <Navigate to="/" replace />
+                ) : (
+                  <LoginPage
+                    onSuccess={() => {
+                      const from = (location.state as any)?.from?.pathname || '/';
+                      navigate(from, { replace: true });
+                    }}
+                  />
+                )
+              }
+            />
             <Route path="/category/:categoryId" element={<CategoryPage />} />
             <Route path="/cart" element={<CartPage />} />
-            <Route path="/payment" element={<PaymentPage />} />
-            <Route path="/orders" element={<MyOrdersPage />} />
+            <Route path="/payment" element={<RequireAuth><PaymentPage /></RequireAuth>} />
+            <Route path="/orders" element={<RequireAuth><MyOrdersPage /></RequireAuth>} />
             <Route path="/company" element={<CompanyPage />} />
-            <Route path="/upi-redirect" element={<UPIRedirectPage />} />
+            <Route path="/upi-redirect" element={<RequireAuth><UPIRedirectPage /></RequireAuth>} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>

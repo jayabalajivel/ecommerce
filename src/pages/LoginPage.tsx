@@ -72,12 +72,6 @@ export default function LoginPage({ onSuccess }: LoginPageProps) {
     }
   };
 
-  function handleTabSwitch(type: 'customer' | 'admin') {
-    setLoginType(type);
-    resetOtpFlow();
-    setEmail(''); setOtp(''); setError('');
-  }
-
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
@@ -97,9 +91,9 @@ export default function LoginPage({ onSuccess }: LoginPageProps) {
       <div className="relative z-10 w-full max-w-[420px] mx-auto px-5">
         {/* Brand */}
         <div className="text-center mb-8 flex flex-col items-center">
-          <img src={logoImg} alt="Madurai Madasamy Idlypodi Logo" className="w-24 h-24 object-contain rounded-2xl shadow-lg mb-4 border border-border bg-white p-1" />
+          <img src={logoImg} alt="Madurai Madasamy Idli Podi Logo" className="w-24 h-24 object-contain rounded-2xl shadow-lg mb-4 border border-border bg-white p-1" />
           <h1 className="text-3xl font-bold text-foreground mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>
-            MADURAI MADASAMY IDLYPODI
+            MADURAI MADASAMY IDLI PODI
           </h1>
           <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground font-medium">
             Premium IdlyPodi & Thokku Co. 
@@ -107,30 +101,12 @@ export default function LoginPage({ onSuccess }: LoginPageProps) {
         </div>
 
         <div className="bg-card rounded-2xl border border-border shadow-2xl overflow-hidden">
-          {/* Tab toggle */}
-          <div className="grid grid-cols-2 border-b border-border">
-            {(['customer', 'admin'] as const).map(type => (
-              <button
-                key={type}
-                onClick={() => handleTabSwitch(type)}
-                className={`py-4 flex items-center justify-center gap-2 text-sm font-semibold transition-all ${
-                  loginType === type
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                }`}
-              >
-                {type === 'customer' ? <User className="w-4 h-4" /> : <Shield className="w-4 h-4" />}
-                {type === 'customer' ? 'Customer' : 'Admin'}
-              </button>
-            ))}
-          </div>
-
           <div className="p-7">
-            <h2 className="text-lg font-semibold text-foreground mb-0.5" style={{ fontFamily: "'Playfair Display', serif" }}>
-              {loginType === 'customer' ? 'Welcome Back' : 'Admin Portal'}
+            <h2 className="text-xl font-bold text-foreground mb-1 text-center" style={{ fontFamily: "'Playfair Display', serif" }}>
+              Welcome Back
             </h2>
-            <p className="text-sm text-muted-foreground mb-6">
-              {loginType === 'customer' ? 'Sign in to browse and order' : 'Restricted access · Predefined admin email required'}
+            <p className="text-sm text-muted-foreground text-center mb-6 italic">
+              "Taste of Tradition, Quality in Every Spoon."
             </p>
 
             {/* Error banner */}
