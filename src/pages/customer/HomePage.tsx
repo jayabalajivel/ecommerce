@@ -78,6 +78,17 @@ export default function HomePage() {
   const homeSchema = [
     {
       "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Madurai Madasamy Idli Podi",
+      "url": "https://maduraimadasamyidlipodi.com",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://maduraimadasamyidlipodi.com/category/all?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@context": "https://schema.org",
       "@type": "Store",
       "name": "Madurai Madasamy Idli Podi",
       "image": "https://maduraimadasamyidlipodi.com/logo.jpg",
