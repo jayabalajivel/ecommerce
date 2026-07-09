@@ -5,16 +5,16 @@ import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { CartProvider, useCart } from '../contexts/CartContext';
 import logoImg from '../assets/logo.jpg';
 
-import LoginPage from '../pages/LoginPage';
-import HomePage from '../pages/customer/HomePage';
-import CategoryPage from '../pages/customer/CategoryPage';
-import CartPage from '../pages/customer/CartPage';
-import PaymentPage from '../pages/customer/PaymentPage';
-import CompanyPage from '../pages/customer/CompanyPage';
-import UPIRedirectPage from '../pages/customer/UPIRedirectPage';
-import AdminLayout from '../pages/admin/AdminLayout';
-import MyOrdersPage from '../pages/customer/MyOrdersPage';
-import NotFoundPage from '../pages/NotFoundPage';
+const LoginPage = lazy(() => import('../pages/LoginPage'));
+const HomePage = lazy(() => import('../pages/customer/HomePage'));
+const CategoryPage = lazy(() => import('../pages/customer/CategoryPage'));
+const CartPage = lazy(() => import('../pages/customer/CartPage'));
+const PaymentPage = lazy(() => import('../pages/customer/PaymentPage'));
+const CompanyPage = lazy(() => import('../pages/customer/CompanyPage'));
+const UPIRedirectPage = lazy(() => import('../pages/customer/UPIRedirectPage'));
+const AdminLayout = lazy(() => import('../pages/admin/AdminLayout'));
+const MyOrdersPage = lazy(() => import('../pages/customer/MyOrdersPage'));
+const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 
 function LoadingFallback() {
   return (

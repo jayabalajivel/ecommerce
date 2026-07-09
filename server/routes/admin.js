@@ -69,13 +69,23 @@ router.get('/product-edits', requireAdmin, async (req, res) => {
   res.json({ edits: data });
 });
 
-/**
- * GET /api/admin/dashboard
- * Dashboard stats: revenue, orders, low stock
- */
-router.get('/dashboard', requireAdmin, async (_req, res) => {
+router.get('/dashboard', requireAdmin, async (req, res) => {
+  const { range = 'all' } = req.query;
+
+  let orderQuery = supabase.from('orders').select('id, status, total, created_at');
+
+  if (range === 'week') {
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    orderQuery = orderQuery.gte('created_at', oneWeekAgo.toISOString());
+  } else if (range === 'month') {
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setDate(oneMonthAgo.getDate() - 30);
+    orderQuery = orderQuery.gte('created_at', oneMonthAgo.toISOString());
+  }
+
   const [ordersRes, productsRes] = await Promise.all([
-    supabase.from('orders').select('id, status, total, created_at'),
+    orderQuery,
     supabase.from('products').select('id, name, stock_qty, is_active').eq('is_active', true),
   ]);
 

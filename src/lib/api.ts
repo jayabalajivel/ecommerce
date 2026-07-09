@@ -155,8 +155,10 @@ export const adminApi = {
     return request<{ edits: ProductEdit[] }>(`/api/admin/product-edits${qs}`);
   },
 
-  getDashboard: () =>
-    request<{ stats: DashboardStats }>('/api/admin/dashboard'),
+  getDashboard: (range?: 'all' | 'month' | 'week') => {
+    const qs = range ? `?range=${range}` : '';
+    return request<{ stats: DashboardStats }>(`/api/admin/dashboard${qs}`);
+  },
 };
 
 // ─── Achievements ─────────────────────────────────────────────

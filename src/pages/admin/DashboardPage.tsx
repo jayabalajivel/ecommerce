@@ -19,16 +19,18 @@ export default function AdminDashboard({ onNavigate }: DashboardProps) {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [range, setRange] = useState<'all' | 'month' | 'week'>('all');
 
   useEffect(() => {
+    setLoading(true);
     Promise.all([
-      adminApi.getDashboard(),
+      adminApi.getDashboard(range),
       ordersApi.list({ limit: 5 }),
     ]).then(([dashRes, ordersRes]) => {
       setStats(dashRes.stats);
       setRecentOrders(ordersRes.orders);
     }).catch(console.error).finally(() => setLoading(false));
-  }, []);
+  }, [range]);
 
   if (loading) return (
     <div className="animate-pulse space-y-4">
@@ -40,8 +42,23 @@ export default function AdminDashboard({ onNavigate }: DashboardProps) {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-foreground mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>Dashboard Overview</h2>
-      <p className="text-muted-foreground mb-6 text-sm">Welcome back. Here is your store summary.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-foreground mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>Dashboard Overview</h2>
+          <p className="text-muted-foreground text-sm">Welcome back. Here is your store summary.</p>
+        </div>
+        <div>
+          <select
+            value={range}
+            onChange={(e) => setRange(e.target.value as any)}
+            className="bg-card border border-border text-foreground text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/30"
+          >
+            <option value="all">All Time</option>
+            <option value="month">This Month (Last 30 days)</option>
+            <option value="week">This Week (Last 7 days)</option>
+          </select>
+        </div>
+      </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
