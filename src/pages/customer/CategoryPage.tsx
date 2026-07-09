@@ -57,11 +57,31 @@ export default function CategoryPage() {
     searchQ ? p.name.toLowerCase().includes(searchQ.toLowerCase()) : true
   );
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://maduraimadasamyidlipodi.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": category?.name || categoryId || "Products",
+        "item": `https://maduraimadasamyidlipodi.com/category/${categoryId}`
+      }
+    ]
+  };
+
   return (
     <div>
       <SEO 
         title={category?.name || categoryId || 'Category'} 
         description={category?.description || `Explore our premium collection of ${category?.name || 'spices'}.`}
+        schema={breadcrumbSchema}
       />
       {/* Category Hero */}
       <div className="relative h-44 overflow-hidden">

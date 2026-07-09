@@ -75,11 +75,52 @@ export default function HomePage() {
     }
   }
 
+  const homeSchema = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "Madurai Madasamy Idlypodi",
+      "image": "https://maduraimadasamyidlipodi.com/assets/logo.jpg",
+      "@id": "https://maduraimadasamyidlipodi.com",
+      "url": "https://maduraimadasamyidlipodi.com",
+      "priceRange": "₹120 - ₹400",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Madurai",
+        "addressLocality": "Madurai",
+        "addressRegion": "Tamil Nadu",
+        "postalCode": "625001",
+        "addressCountry": "IN"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Madurai Madasamy Premium Idly Podi",
+      "image": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800",
+      "description": "Authentic homemade Madurai Style Idli Podi crafted with 100% natural ingredients, no preservatives, and traditional recipe.",
+      "brand": {
+        "@type": "Brand",
+        "name": "Madurai Madasamy Idlypodi"
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": "https://maduraimadasamyidlipodi.com",
+        "priceCurrency": "INR",
+        "price": "120",
+        "priceValidUntil": "2030-01-01",
+        "availability": "https://schema.org/InStock",
+        "itemCondition": "https://schema.org/NewCondition"
+      }
+    }
+  ];
+
   return (
     <div>
       <SEO 
         title="Premium Spices & Authentic Flavours" 
         description="Hand-sourced from the finest farms across India. Over 35 years of heritage in every jar. Discover our premium collection of authentic spices."
+        schema={homeSchema}
       />
       {/* Preload only the first Hero Image eagerly for faster initial page load */}
       <div className="hidden" aria-hidden="true">

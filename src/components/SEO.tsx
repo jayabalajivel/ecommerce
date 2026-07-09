@@ -8,27 +8,51 @@ interface SEOProps {
   type?: string;
   image?: string;
   url?: string;
+  keywords?: string;
+  schema?: Record<string, any>;
 }
 
 export function SEO({
   title,
   description,
-  name = 'SpiceKraft',
+  name = 'Madurai Madasamy Idlypodi',
   type = 'website',
   image = '',
   url = '',
+  keywords = 'Madurai Madasamy Idlypodi, Madasamy Idlypodi, Idli podi online, Buy idli podi, Best idly podi in Tamil Nadu, Homemade idli podi, Thokku online, South Indian spices, Traditional idly podi, Garlic idly podi, Pure homemade podi',
+  schema,
 }: SEOProps) {
+  // Always use the custom domain as the canonical URL base to avoid indexing Vercel deployment URLs
+  const canonicalUrl = url || `https://maduraimadasamyidlipodi.com${window.location.pathname}`;
+
+  // Default structured data schema for the website search & organization snippet
+  const defaultSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    'name': name,
+    'url': 'https://maduraimadasamyidlipodi.com',
+    'potentialAction': {
+      '@type': 'SearchAction',
+      'target': 'https://maduraimadasamyidlipodi.com/category/all?search={search_term_string}',
+      'query-input': 'required name=search_term_string'
+    }
+  };
+
+  const jsonLdSchema = schema || defaultSchema;
+
   return (
     <Helmet>
       <title>{`${title} | ${name}`}</title>
       <meta name='description' content={description} />
+      <meta name='keywords' content={keywords} />
+      <link rel="canonical" href={canonicalUrl} />
       
       {/* Facebook tags */}
       <meta property='og:type' content={type} />
       <meta property='og:title' content={title} />
       <meta property='og:description' content={description} />
       {image && <meta property='og:image' content={image} />}
-      {url && <meta property='og:url' content={url} />}
+      <meta property='og:url' content={canonicalUrl} />
       
       {/* Twitter tags */}
       <meta name='twitter:creator' content={name} />
@@ -36,6 +60,13 @@ export function SEO({
       <meta name='twitter:title' content={title} />
       <meta name='twitter:description' content={description} />
       {image && <meta name='twitter:image' content={image} />}
+
+      {/* Structured Schema Data */}
+      <script type="application/ld+json">
+        {JSON.stringify(jsonLdSchema)}
+      </script>
     </Helmet>
   );
 }
+
+
