@@ -19,7 +19,7 @@ export function SEO({
   type = 'website',
   image = 'https://maduraimadasamyidlipodi.com/logo.jpg',
   url = '',
-  keywords = 'Madurai Madasamy Idlypodi, Madasamy Idlypodi, Idlypodi online, Buy idly podi, Best idly podi in Tamil Nadu, Homemade idly podi, Thokku online, South Indian spices, Traditional idly podi, Garlic idly podi, Pure homemade podi',
+  keywords = 'idlipodi, idlypodi, podi, madurai madasamy idlypodi, madurai madasamy idlipodi, buy idli podi online, best idly podi, garlic idly podi, ellu podi, paruppu podi, karuveppilai podi, authentic south indian spices, homemade podi, traditional tamil nadu idli podi, thokku online',
   schema,
 }: SEOProps) {
   // Always use the custom domain as the canonical URL base to avoid indexing Vercel deployment URLs
