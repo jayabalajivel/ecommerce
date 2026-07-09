@@ -24,6 +24,8 @@ app.use(cors({
     'http://localhost:5173',
     'http://localhost:3000',
     'http://127.0.0.1:5173',
+    'https://maduraimadasamyidlipodi.com',
+    'https://www.maduraimadasamyidlipodi.com',
     /\.vercel\.app$/ // Allows all Vercel preview and production deployments
   ],
   credentials: true,
