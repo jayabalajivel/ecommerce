@@ -79,7 +79,7 @@ export default function HomePage() {
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      "name": "Madurai Madasamy Idli Podi",
+      "name": "Madurai Madasamy Idlypodi",
       "url": "https://maduraimadasamyidlipodi.com",
       "potentialAction": {
         "@type": "SearchAction",
@@ -90,7 +90,7 @@ export default function HomePage() {
     {
       "@context": "https://schema.org",
       "@type": "Store",
-      "name": "Madurai Madasamy Idli Podi",
+      "name": "Madurai Madasamy Idlypodi",
       "image": "https://maduraimadasamyidlipodi.com/logo.jpg",
       "@id": "https://maduraimadasamyidlipodi.com",
       "url": "https://maduraimadasamyidlipodi.com",
@@ -112,7 +112,7 @@ export default function HomePage() {
       "description": "Authentic homemade Madurai Style Idli Podi crafted with 100% natural ingredients, no preservatives, and traditional recipe.",
       "brand": {
         "@type": "Brand",
-        "name": "Madurai Madasamy Idli Podi"
+        "name": "Madurai Madasamy Idlypodi"
       },
       "offers": {
         "@type": "Offer",

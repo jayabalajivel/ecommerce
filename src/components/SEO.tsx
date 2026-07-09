@@ -15,11 +15,11 @@ interface SEOProps {
 export function SEO({
   title,
   description,
-  name = 'Madurai Madasamy Idli Podi',
+  name = 'Madurai Madasamy Idlypodi',
   type = 'website',
   image = 'https://maduraimadasamyidlipodi.com/logo.jpg',
   url = '',
-  keywords = 'Madurai Madasamy Idli Podi, Madasamy Idli Podi, Idli podi online, Buy idli podi, Best idly podi in Tamil Nadu, Homemade idli podi, Thokku online, South Indian spices, Traditional idly podi, Garlic idly podi, Pure homemade podi',
+  keywords = 'Madurai Madasamy Idlypodi, Madasamy Idlypodi, Idlypodi online, Buy idly podi, Best idly podi in Tamil Nadu, Homemade idly podi, Thokku online, South Indian spices, Traditional idly podi, Garlic idly podi, Pure homemade podi',
   schema,
 }: SEOProps) {
   // Always use the custom domain as the canonical URL base to avoid indexing Vercel deployment URLs
