@@ -65,11 +65,15 @@ function AppInner() {
     <div className="min-h-screen bg-background" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       {/* Customer Navbar */}
       <header className="bg-brand-green text-white border-b border-white/10 sticky top-0 z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16 gap-4">
-          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            <img src={logoImg} alt="Madurai Madasamy Idlypodi Logo" className="h-9 w-9 sm:h-10 sm:w-10 object-cover rounded-md bg-white p-0.5" />
-            <span className="font-bold text-white text-xs xs:text-sm sm:text-base md:text-lg tracking-wide whitespace-nowrap" style={{ fontFamily: "'Playfair Display', serif" }}>
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 flex items-center justify-between h-16 gap-2 sm:gap-4">
+          <Link to="/" className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+            <img src={logoImg} alt="Madurai Madasamy Idlypodi Logo" className="h-8 w-8 sm:h-10 sm:w-10 object-cover rounded-md bg-white p-0.5" />
+            {/* Shorter brand text on small screens, full brand text on larger screens */}
+            <span className="font-bold text-white text-xs sm:text-base md:text-lg tracking-wide whitespace-nowrap hidden xs:inline" style={{ fontFamily: "'Playfair Display', serif" }}>
               MADURAI MADASAMY IDLYPODI
+            </span>
+            <span className="font-bold text-white text-xs tracking-wide whitespace-nowrap xs:hidden" style={{ fontFamily: "'Playfair Display', serif" }}>
+              M.M. IDLYPODI
             </span>
           </Link>
  
@@ -108,27 +112,27 @@ function AppInner() {
             </NavLink>
           </nav>
  
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             <Link
               to="/cart"
-              className="relative flex items-center gap-2 px-3 py-2 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 transition-colors"
+              className="relative flex items-center gap-1 sm:gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 transition-colors flex-shrink-0"
             >
-              <ShoppingCart className="w-4 h-4 text-white" />
-              <span className="text-sm font-medium text-white hidden sm:inline">Cart</span>
+              <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+              <span className="text-xs sm:text-sm font-medium text-white hidden sm:inline">Cart</span>
               {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-brand-red text-white text-xs rounded-full flex items-center justify-center font-bold">
+                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 sm:w-5 sm:h-5 bg-brand-red text-white text-[10px] sm:text-xs rounded-full flex items-center justify-center font-bold">
                   {cartCount}
                 </span>
               )}
             </Link>
             {user ? (
-              <button onClick={logout} className="p-2 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors" title="Sign out">
+              <button onClick={logout} className="p-2 rounded-lg sm:rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors" title="Sign out">
                 <LogOut className="w-4 h-4 text-white" />
               </button>
             ) : (
               <Link
                 to="/login"
-                className="px-4 py-2 bg-brand-gold text-brand-green font-bold text-sm rounded-xl hover:opacity-90 transition-all"
+                className="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-brand-gold text-brand-green font-bold text-xs sm:text-sm rounded-lg sm:rounded-xl hover:opacity-90 transition-all whitespace-nowrap"
               >
                 Login
               </Link>
