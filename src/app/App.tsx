@@ -65,10 +65,12 @@ function AppInner() {
     <div className="min-h-screen bg-background" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       {/* Customer Navbar */}
       <header className="bg-brand-green text-white border-b border-white/10 sticky top-0 z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-2.5">
-            <img src={logoImg} alt="Madurai Madasamy Idlypodi Logo" className="h-10 w-auto object-contain rounded-md bg-white p-0.5" />
-            <span className="font-bold text-white text-lg tracking-wide hidden sm:inline" style={{ fontFamily: "'Playfair Display', serif" }}>MADURAI MADASAMY IDLYPODI</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16 gap-4">
+          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+            <img src={logoImg} alt="Madurai Madasamy Idli Podi Logo" className="h-9 w-9 sm:h-10 sm:w-10 object-cover rounded-md bg-white p-0.5" />
+            <span className="font-bold text-white text-xs xs:text-sm sm:text-base md:text-lg tracking-wide whitespace-nowrap" style={{ fontFamily: "'Playfair Display', serif" }}>
+              MADURAI MADASAMY IDLI PODI
+            </span>
           </Link>
  
           <nav className="hidden md:flex items-center gap-1">
