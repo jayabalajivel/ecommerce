@@ -68,12 +68,8 @@ function AppInner() {
         <div className="max-w-7xl mx-auto px-3 sm:px-6 flex items-center justify-between h-16 gap-2 sm:gap-4">
           <Link to="/" className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
             <img src={logoImg} alt="Madurai Madasamy Idlypodi Logo" className="h-8 w-8 sm:h-10 sm:w-10 object-cover rounded-md bg-white p-0.5" />
-            {/* Shorter brand text on small screens, full brand text on larger screens */}
-            <span className="font-bold text-white text-xs sm:text-base md:text-lg tracking-wide whitespace-nowrap hidden xs:inline" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <span className="font-bold text-white text-[10px] sm:text-base md:text-lg tracking-wide whitespace-nowrap" style={{ fontFamily: "'Playfair Display', serif" }}>
               MADURAI MADASAMY IDLYPODI
-            </span>
-            <span className="font-bold text-white text-xs tracking-wide whitespace-nowrap xs:hidden" style={{ fontFamily: "'Playfair Display', serif" }}>
-              M.M. IDLYPODI
             </span>
           </Link>
  
