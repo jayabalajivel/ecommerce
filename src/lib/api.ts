@@ -176,6 +176,25 @@ export const productsApi = {
       method: 'DELETE',
     });
   },
+
+  uploadImage: (file: File) => {
+    const formData = new FormData();
+    formData.append('screenshot', file);
+    
+    const token = getToken();
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    return fetch(`${API_URL}/api/upload/screenshot`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    }).then(async res => {
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+      return data as { url: string };
+    });
+  },
 };
 
 // ─── Orders ─────────────────────────────────────────────────

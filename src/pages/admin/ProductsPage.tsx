@@ -358,18 +358,23 @@ export default function AdminProducts() {
                       type="file"
                       accept="image/*"
                       className="hidden"
-                      onChange={e => {
+                      onChange={async e => {
                         const file = e.target.files?.[0];
                         if (file) {
                           if (file.size > 2 * 1024 * 1024) {
                             showToast('Image must be less than 2MB');
                             return;
                           }
-                          const reader = new FileReader();
-                          reader.onloadend = () => {
-                            setForm(prev => ({ ...prev, image_url: reader.result as string }));
-                          };
-                          reader.readAsDataURL(file);
+                          setSaving(true);
+                          try {
+                            const { url } = await productsApi.uploadImage(file);
+                            setForm(prev => ({ ...prev, image_url: url }));
+                            showToast('Image uploaded successfully');
+                          } catch (err: any) {
+                            showToast('Upload failed: ' + err.message);
+                          } finally {
+                            setSaving(false);
+                          }
                         }
                       }}
                     />
@@ -439,18 +444,23 @@ export default function AdminProducts() {
                           type="file"
                           accept="image/*"
                           className="hidden"
-                          onChange={e => {
+                          onChange={async e => {
                             const file = e.target.files?.[0];
                             if (file) {
                               if (file.size > 2 * 1024 * 1024) {
                                 showToast('Image must be less than 2MB');
                                 return;
                               }
-                              const reader = new FileReader();
-                              reader.onloadend = () => {
-                                setCatForm(prev => ({ ...prev, image_url: reader.result as string }));
-                              };
-                              reader.readAsDataURL(file);
+                              setSaving(true);
+                              try {
+                                const { url } = await productsApi.uploadImage(file);
+                                setCatForm(prev => ({ ...prev, image_url: url }));
+                                showToast('Category image uploaded');
+                              } catch (err: any) {
+                                showToast('Upload failed: ' + err.message);
+                              } finally {
+                                setSaving(false);
+                              }
                             }
                           }}
                         />
