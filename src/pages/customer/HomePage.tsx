@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronRight, Star, Plus, X, Check, ChevronDown, HelpCircle, RefreshCw, Truck } from 'lucide-react';
 import { useNavigate, Link } from 'react-router';
-import { productsApi, achievementsApi, reviewsApi } from '../../lib/api';
+import { productsApi, achievementsApi, reviewsApi, getOptimizedImg } from '../../lib/api';
 import type { Category, Product, Achievement, StoreReview } from '../../lib/api';
 import { useCart } from '../../contexts/CartContext';
 import { SEO } from '../../components/SEO';
@@ -17,18 +17,17 @@ import hero2 from '../../assets/hero_2.jpg';
 import hero3 from '../../assets/hero_3.jpg';
 import hero4 from '../../assets/hero_4.jpg';
 
-const getOptimizedImg = (url: string, w = 400, h = 300) => {
-  if (!url) return '';
-  if (url.includes('unsplash.com')) {
-    const baseUrl = url.split('?')[0];
-    return `${baseUrl}?w=${w}&h=${h}&fit=crop&q=50&fm=webp&auto=compress,format`;
-  }
-  return url;
-};
-
 export default function HomePage() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [bestsellers, setBestsellers] = useState<Product[]>([]);
+  const cachedCats = productsApi.getCachedCategories();
+  const cachedProds = productsApi.getCachedList();
+
+  const [categories, setCategories] = useState<Category[]>(cachedCats ? cachedCats.categories : []);
+  const [bestsellers, setBestsellers] = useState<Product[]>(() => {
+    if (cachedProds) {
+      return cachedProds.products.filter(p => p.badge).slice(0, 4);
+    }
+    return [];
+  });
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [reviews, setReviews] = useState<StoreReview[]>([]);
   
@@ -203,7 +202,7 @@ export default function HomePage() {
               className={`group relative overflow-hidden rounded-2xl text-left block ${i === 0 ? 'sm:col-span-2 lg:col-span-1' : ''} hover:shadow-xl transition-all duration-300`}
             >
               <div className="relative h-52 sm:h-56">
-                <img loading="lazy" src={getOptimizedImg(cat.image_url, 600, 450)} alt={cat.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <img loading="eager" src={getOptimizedImg(cat.image_url, 600, 450)} alt={cat.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
               </div>
               <div className="absolute inset-0 flex flex-col justify-end p-5">
@@ -238,7 +237,7 @@ export default function HomePage() {
             {bestsellers.map(product => (
               <div key={product.id} className="bg-card rounded-2xl border border-border overflow-hidden hover:shadow-lg transition-all duration-300 group flex flex-col">
                 <Link to={`/category/${product.category_id}`} className="relative overflow-hidden block">
-                  <img loading="lazy" src={getOptimizedImg(product.image_url, 400, 300)} alt={product.name} className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-500 bg-muted" />
+                  <img loading="eager" src={getOptimizedImg(product.image_url, 400, 300)} alt={product.name} className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-500 bg-muted" />
                   {product.badge && (
                     <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full font-medium">{product.badge}</span>
                   )}

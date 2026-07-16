@@ -1,33 +1,62 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Search, Plus, Minus, Star, AlertCircle } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router';
-import { productsApi } from '../../lib/api';
+import { productsApi, getOptimizedImg } from '../../lib/api';
 import type { Product, Category } from '../../lib/api';
 import { useCart } from '../../contexts/CartContext';
 import { SEO } from '../../components/SEO';
-
-const getOptimizedImg = (url: string, w = 400, h = 300) => {
-  if (!url) return '';
-  if (url.includes('unsplash.com')) {
-    const baseUrl = url.split('?')[0];
-    return `${baseUrl}?w=${w}&h=${h}&fit=crop&q=60&auto=format`;
-  }
-  return url;
-};
 
 export default function CategoryPage() {
   const { categoryId } = useParams<{ categoryId: string }>();
   const navigate = useNavigate();
   
-  const [products, setProducts] = useState<Product[]>([]);
-  const [category, setCategory] = useState<Category | null>(null);
+  const cachedProds = productsApi.getCachedList(categoryId === 'all' ? undefined : { category: categoryId });
+  const cachedCats = productsApi.getCachedCategories();
+
+  const [products, setProducts] = useState<Product[]>(cachedProds ? cachedProds.products : []);
+  const [category, setCategory] = useState<Category | null>(() => {
+    if (categoryId === 'all') {
+      return {
+        id: 'all',
+        name: 'All Products',
+        description: 'Explore our full range of authentic South Indian condiments, masalas, and powders.',
+        image_url: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=1200&fit=crop',
+        sort_order: 0,
+        product_count: cachedProds ? cachedProds.products.length : 0
+      };
+    }
+    return cachedCats ? (cachedCats.categories.find(c => c.id === categoryId) || null) : null;
+  });
   const [searchQ, setSearchQ] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!cachedProds || !cachedCats);
   const { cart, addToCart, updateQty, removeItem } = useCart();
 
   useEffect(() => {
     if (!categoryId) return;
-    setLoading(true);
+    
+    const freshProds = productsApi.getCachedList(categoryId === 'all' ? undefined : { category: categoryId });
+    const freshCats = productsApi.getCachedCategories();
+    
+    if (freshProds && freshCats) {
+      setProducts(freshProds.products);
+      if (categoryId === 'all') {
+        setCategory({
+          id: 'all',
+          name: 'All Products',
+          description: 'Explore our full range of authentic South Indian condiments, masalas, and powders.',
+          image_url: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=1200&fit=crop',
+          sort_order: 0,
+          product_count: freshProds.products.length
+        });
+      } else {
+        setCategory(freshCats.categories.find(c => c.id === categoryId) || null);
+      }
+      setLoading(false);
+    } else {
+      setProducts([]);
+      setCategory(null);
+      setLoading(true);
+    }
     
     const apiCall = categoryId === 'all'
       ? productsApi.list()
@@ -85,7 +114,7 @@ export default function CategoryPage() {
       />
       {/* Category Hero */}
       <div className="relative h-44 overflow-hidden">
-        {category && <img loading="lazy" src={getOptimizedImg(category.image_url, 1200, 300)} alt={category.name} className="w-full h-full object-cover" />}
+        {category && <img loading="eager" src={getOptimizedImg(category.image_url, 1200, 300)} alt={category.name} className="w-full h-full object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 to-transparent" />
         <div className="absolute inset-0 flex items-center px-4 sm:px-6 max-w-7xl mx-auto">
           <div>
@@ -133,7 +162,7 @@ export default function CategoryPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {filtered.map(product => {
+            {filtered.map((product, index) => {
               const inCart = cart.find(i => i.id === product.id);
               const isLowStock = product.stock_qty > 0 && product.stock_qty <= 10;
               const isOutOfStock = product.stock_qty === 0;
@@ -143,7 +172,7 @@ export default function CategoryPage() {
               return (
                 <div key={product.id} className="bg-card rounded-2xl border border-border overflow-hidden hover:shadow-lg transition-all duration-300 group flex flex-col">
                   <div className="relative overflow-hidden flex-shrink-0">
-                    <img loading="lazy" src={getOptimizedImg(product.image_url, 400, 300)} alt={product.name} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500 bg-muted" />
+                    <img loading={index < 4 ? "eager" : "lazy"} src={getOptimizedImg(product.image_url, 400, 300)} alt={product.name} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500 bg-muted" />
                     {product.badge && (
                       <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full font-medium">{product.badge}</span>
                     )}

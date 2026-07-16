@@ -47,56 +47,135 @@ export const authApi = {
 };
 
 // ─── Products ────────────────────────────────────────────────
+let categoriesCache: { categories: Category[] } | null = null;
+let productsCache: Record<string, { products: Product[] }> = {};
+
+export const getOptimizedImg = (url: string, w = 400, h = 300) => {
+  if (!url) return '';
+  if (url.includes('unsplash.com')) {
+    const baseUrl = url.split('?')[0];
+    return `${baseUrl}?w=${w}&h=${h}&fit=crop&q=60&auto=format`;
+  }
+  return url;
+};
+
+export const preloadImage = (url: string) => {
+  if (typeof window !== 'undefined' && url) {
+    const img = new window.Image();
+    img.src = url;
+  }
+};
+
 export const productsApi = {
-  list: (params?: { category?: string; search?: string }) => {
-    const qs = new URLSearchParams(params as Record<string, string>).toString();
-    return request<{ products: Product[] }>(`/api/products${qs ? '?' + qs : ''}`);
+  clearCache: () => {
+    categoriesCache = null;
+    productsCache = {};
   },
 
-  categories: () => request<{ categories: Category[] }>('/api/products/categories'),
+  list: async (params?: { category?: string; search?: string }) => {
+    const qs = new URLSearchParams(params as Record<string, string>).toString();
+    const cacheKey = qs || 'all';
+    if (productsCache[cacheKey]) {
+      return productsCache[cacheKey];
+    }
+    const res = await request<{ products: Product[] }>(`/api/products${qs ? '?' + qs : ''}`);
+    productsCache[cacheKey] = res;
+    
+    if (res.products) {
+      res.products.forEach(p => {
+        if (p.image_url) {
+          preloadImage(getOptimizedImg(p.image_url, 400, 300));
+        }
+      });
+    }
+    
+    return res;
+  },
+
+  categories: async () => {
+    if (categoriesCache) {
+      return categoriesCache;
+    }
+    const res = await request<{ categories: Category[] }>('/api/products/categories');
+    categoriesCache = res;
+    
+    if (res.categories) {
+      res.categories.forEach(c => {
+        if (c.image_url) {
+          preloadImage(getOptimizedImg(c.image_url, 600, 450));
+        }
+      });
+    }
+    
+    return res;
+  },
+
+  getCachedList: (params?: { category?: string; search?: string }) => {
+    const qs = new URLSearchParams(params as Record<string, string>).toString();
+    const cacheKey = qs || 'all';
+    return productsCache[cacheKey] || null;
+  },
+
+  getCachedCategories: () => {
+    return categoriesCache || null;
+  },
   
-  createCategory: (data: Partial<Category>) =>
-    request<{ category: Category }>('/api/products/categories', {
+  createCategory: async (data: Partial<Category>) => {
+    productsApi.clearCache();
+    return request<{ category: Category }>('/api/products/categories', {
       method: 'POST',
       body: JSON.stringify(data),
-    }),
+    });
+  },
 
-  updateCategory: (id: string, data: Partial<Category>) =>
-    request<{ category: Category }>(`/api/products/categories/${id}`, {
+  updateCategory: async (id: string, data: Partial<Category>) => {
+    productsApi.clearCache();
+    return request<{ category: Category }>(`/api/products/categories/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
-    }),
+    });
+  },
 
-  deleteCategory: (id: string) =>
-    request<{ message: string }>(`/api/products/categories/${id}`, {
+  deleteCategory: async (id: string) => {
+    productsApi.clearCache();
+    return request<{ message: string }>(`/api/products/categories/${id}`, {
       method: 'DELETE',
-    }),
+    });
+  },
 
   get: (id: number) =>
     request<{ product: Product }>(`/api/products/${id}`),
 
-  update: (id: number, data: Partial<Product> & { session_id?: string }) =>
-    request<{ product: Product; edits_logged: number }>(`/api/products/${id}`, {
+  update: async (id: number, data: Partial<Product> & { session_id?: string }) => {
+    productsApi.clearCache();
+    return request<{ product: Product; edits_logged: number }>(`/api/products/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
-    }),
+    });
+  },
 
-  updateStock: (id: number, stock_qty: number, session_id?: string) =>
-    request<{ product: Product }>(`/api/products/${id}/stock`, {
+  updateStock: async (id: number, stock_qty: number, session_id?: string) => {
+    productsApi.clearCache();
+    return request<{ product: Product }>(`/api/products/${id}/stock`, {
       method: 'PATCH',
       body: JSON.stringify({ stock_qty, session_id }),
-    }),
+    });
+  },
 
-  create: (data: Partial<Product>) =>
-    request<{ product: Product }>('/api/products', {
+  create: async (data: Partial<Product>) => {
+    productsApi.clearCache();
+    return request<{ product: Product }>('/api/products', {
       method: 'POST',
       body: JSON.stringify(data),
-    }),
+    });
+  },
 
-  delete: (id: number) =>
-    request<{ message: string }>(`/api/products/${id}`, {
+  delete: async (id: number) => {
+    productsApi.clearCache();
+    return request<{ message: string }>(`/api/products/${id}`, {
       method: 'DELETE',
-    }),
+    });
+  },
 };
 
 // ─── Orders ─────────────────────────────────────────────────
