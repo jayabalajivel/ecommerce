@@ -142,6 +142,42 @@ async function sendEmail({ to, subject, htmlContent, orderId }) {
     }
   }
 
+  async function trySendBrevoHttp(apiKey) {
+    if (!apiKey) return false;
+    try {
+      console.log(`[Email Service] Attempting HTTP POST to Brevo API send endpoint...`);
+      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'api-key': apiKey,
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          sender: { 
+            name: "Madurai Madasamy Idlypodi", 
+            email: SMTP_USER || "maduraimadasamyidlipodi@gmail.com" 
+          },
+          to: [{ email: to }],
+          subject: subject,
+          htmlContent: htmlContent
+        })
+      });
+
+      const resData = await response.json();
+      if (response.ok) {
+        console.log(`[Email Service] Brevo HTTP send success! Message ID:`, resData.messageId);
+        return true;
+      } else {
+        console.error(`[Email Service] Brevo HTTP send failed:`, JSON.stringify(resData));
+        return false;
+      }
+    } catch (err) {
+      console.error(`[Email Service] Brevo HTTP error:`, err);
+      return false;
+    }
+  }
+
   // 1. Try Gmail SMTP first (using the working app password credentials)
   let sent = false;
   if (SMTP_HOST) {
@@ -155,12 +191,18 @@ async function sendEmail({ to, subject, htmlContent, orderId }) {
     });
   }
 
-  // 2. Try Resend HTTP API as fallback
+  // 2. Try Brevo HTTP API (highly recommended for Render bypass)
+  const BREVO_API_KEY = process.env.BREVO_API_KEY;
+  if (!sent && BREVO_API_KEY) {
+    sent = await trySendBrevoHttp(BREVO_API_KEY);
+  }
+
+  // 3. Try Resend HTTP API as fallback
   if (!sent && RESEND_API_KEY) {
     sent = await trySendResendHttp(RESEND_API_KEY);
   }
 
-  // 3. Try Mailjet HTTP API next
+  // 4. Try Mailjet HTTP API next
   if (!sent) {
     sent = await trySendMailHttp({
       user: RESEND_USER,
@@ -169,7 +211,7 @@ async function sendEmail({ to, subject, htmlContent, orderId }) {
     });
   }
 
-  // 4. Try Mailjet SMTP fallback
+  // 5. Try Mailjet SMTP fallback
   if (!sent && RESEND_HOST) {
     console.log(`[Email Service] Fallback to SMTP (Mailjet)...`);
     sent = await trySendMail({
