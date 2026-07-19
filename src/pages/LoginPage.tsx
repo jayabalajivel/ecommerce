@@ -35,7 +35,9 @@ export default function LoginPage({ onSuccess }: LoginPageProps) {
     try {
       await sendOtp(email.trim());
     } catch (err: any) {
-      setError(err.message || 'Failed to send verification code.');
+      console.error("OTP Send Error:", err);
+      const message = err?.message || err?.error_description || (typeof err === 'object' ? JSON.stringify(err) : String(err));
+      setError(message || 'Failed to send verification code.');
     } finally {
       setIsLoading(false);
     }
@@ -48,7 +50,9 @@ export default function LoginPage({ onSuccess }: LoginPageProps) {
     try {
       await verifyOtp(email.trim(), otp);
     } catch (err: any) {
-      setError(err.message || 'OTP verification failed. Please check the code.');
+      console.error("OTP Verify Error:", err);
+      const message = err?.message || err?.error_description || (typeof err === 'object' ? JSON.stringify(err) : String(err));
+      setError(message || 'OTP verification failed. Please check the code.');
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +71,9 @@ export default function LoginPage({ onSuccess }: LoginPageProps) {
       });
       if (oauthErr) throw oauthErr;
     } catch (err: any) {
-      setError(err.message || 'Google Sign-in failed');
+      console.error("Google Sign-In Error:", err);
+      const message = err?.message || err?.error_description || (typeof err === 'object' ? JSON.stringify(err) : String(err));
+      setError(message || 'Google Sign-in failed');
       setIsLoading(false);
     }
   };
