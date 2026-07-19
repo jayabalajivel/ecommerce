@@ -381,7 +381,7 @@ Madurai Madasamy Idly Podi was founded with a simple mission—to preserve the a
             </a>
             
             <a
-              href="mailto:maduraimadasamyidlypodi@gmail.com"
+              href="mailto:maduraimadasamyidlipodi@gmail.com"
               className="flex flex-col items-center gap-3 p-6 bg-white/10 rounded-2xl hover:bg-white/20 transition-colors border border-white/10"
             >
               <Mail className="w-8 h-8 text-blue-300" />

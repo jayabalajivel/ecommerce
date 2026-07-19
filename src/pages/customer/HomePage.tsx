@@ -357,7 +357,7 @@ export default function HomePage() {
               },
               {
                 q: "How do I contact customer service?",
-                a: "Our customer service team is available throughout the week, all seven days from 9:30 am to 6:00 pm. They can be reached at +919843430304 or via email at maduraimadasamyidlypodi@gmail.com"
+                a: "Our customer service team is available throughout the week, all seven days from 9:30 am to 6:00 pm. They can be reached at +919843430304 or via email at maduraimadasamyidlipodi@gmail.com"
               },
               {
                 q: "What are the procedure of payment?",
@@ -419,7 +419,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-xl font-bold text-foreground mb-3 font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>Exchanges</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  We only replace items if they are defective or damaged. If you need to exchange it for the same item, send us an email at <a href="mailto:maduraimadasamyidlypodi@gmail.com" className="text-primary hover:underline font-semibold">maduraimadasamyidlypodi@gmail.com</a> or contact: <a href="tel:9843430304" className="text-primary hover:underline font-semibold">9843430304</a> and send your item to:
+                  We only replace items if they are defective or damaged. If you need to exchange it for the same item, send us an email at <a href="mailto:maduraimadasamyidlipodi@gmail.com" className="text-primary hover:underline font-semibold">maduraimadasamyidlipodi@gmail.com</a> or contact: <a href="tel:9843430304" className="text-primary hover:underline font-semibold">9843430304</a> and send your item to:
                 </p>
               </div>
               <div className="mt-4 pt-4 border-t border-border bg-muted/20 p-3.5 rounded-xl text-xs text-foreground/80 font-medium">

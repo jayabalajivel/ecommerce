@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import supabase from '../lib/supabase.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
-import { sendReceiptEmail } from '../lib/email.js';
+import { sendReceiptEmail, sendAdminNotificationEmail } from '../lib/email.js';
 
 const router = Router();
 
@@ -213,6 +213,11 @@ router.post('/', requireAuth, async (req, res) => {
   // Trigger sending receipt email (asynchronously)
   sendReceiptEmail(order, email).catch(err => {
     console.error(`[Email Service] Failed asynchronously:`, err);
+  });
+
+  // Trigger sending admin notification email (asynchronously)
+  sendAdminNotificationEmail(order).catch(err => {
+    console.error(`[Admin Email Service] Failed asynchronously:`, err);
   });
 
   res.status(201).json({ order, message: 'Order placed successfully. Awaiting payment verification.' });

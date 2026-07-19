@@ -41,6 +41,6 @@ export function requireAdmin(req, res, next) {
  */
 export function isAdminEmail(email) {
   if (!email) return false;
-  const adminEmail = (process.env.ADMIN_EMAIL || 'maduraimadasamyidlypodi@gmail.com').trim().toLowerCase();
+  const adminEmail = (process.env.ADMIN_EMAIL || 'maduraimadasamyidlipodi@gmail.com').trim().toLowerCase();
   return email.trim().toLowerCase() === adminEmail;
 }

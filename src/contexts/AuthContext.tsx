@@ -36,7 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session) {
         const token = session.access_token;
-        const adminEmail = (import.meta.env.VITE_ADMIN_EMAIL || 'maduraimadasamyidlypodi@gmail.com').toLowerCase();
+        const adminEmail = (import.meta.env.VITE_ADMIN_EMAIL || 'maduraimadasamyidlipodi@gmail.com').toLowerCase();
         const role = session.user.email?.toLowerCase() === adminEmail ? 'admin' : 'customer';
         const userPayload = { email: session.user.email || '', role };
 
