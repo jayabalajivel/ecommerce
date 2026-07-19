@@ -5,16 +5,17 @@ import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { CartProvider, useCart } from '../contexts/CartContext';
 import logoImg from '../assets/logo.jpg';
 
-const LoginPage = lazy(() => import('../pages/LoginPage'));
-const HomePage = lazy(() => import('../pages/customer/HomePage'));
-const CategoryPage = lazy(() => import('../pages/customer/CategoryPage'));
-const CartPage = lazy(() => import('../pages/customer/CartPage'));
-const PaymentPage = lazy(() => import('../pages/customer/PaymentPage'));
-const CompanyPage = lazy(() => import('../pages/customer/CompanyPage'));
-const UPIRedirectPage = lazy(() => import('../pages/customer/UPIRedirectPage'));
+import LoginPage from '../pages/LoginPage';
+import HomePage from '../pages/customer/HomePage';
+import CategoryPage from '../pages/customer/CategoryPage';
+import CartPage from '../pages/customer/CartPage';
+import PaymentPage from '../pages/customer/PaymentPage';
+import CompanyPage from '../pages/customer/CompanyPage';
+import UPIRedirectPage from '../pages/customer/UPIRedirectPage';
+import MyOrdersPage from '../pages/customer/MyOrdersPage';
+import NotFoundPage from '../pages/NotFoundPage';
+
 const AdminLayout = lazy(() => import('../pages/admin/AdminLayout'));
-const MyOrdersPage = lazy(() => import('../pages/customer/MyOrdersPage'));
-const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 
 function LoadingFallback() {
   return (
@@ -64,7 +65,7 @@ function AppInner() {
   return (
     <div className="min-h-screen bg-background" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       {/* Customer Navbar */}
-      <header className="bg-brand-green text-white border-b border-white/10 sticky top-0 z-40 shadow-sm">
+      <header className="w-full bg-brand-green text-white border-b border-white/10 sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 flex items-center justify-between h-16 gap-2 sm:gap-4">
           <Link to="/" className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
             <img src={logoImg} alt="Madurai Madasamy Idlypodi Logo" className="h-8 w-8 sm:h-10 sm:w-10 object-cover rounded-md bg-white p-0.5" />
@@ -174,7 +175,7 @@ function AppInner() {
       </header>
 
       {/* Pages */}
-      <main>
+      <main className="w-full">
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
