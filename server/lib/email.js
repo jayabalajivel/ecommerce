@@ -25,7 +25,10 @@ async function sendEmail({ to, subject, htmlContent, orderId }) {
         auth: {
           user: user,
           pass: passToUse,
-        }
+        },
+        connectionTimeout: 5000,
+        greetingTimeout: 5000,
+        socketTimeout: 8000
       } : {
         host: host,
         port: parseInt(port || '587'),
@@ -101,9 +104,10 @@ async function sendEmail({ to, subject, htmlContent, orderId }) {
     }
   }
 
-  // 1. Try Gmail SMTP (usually for local development)
+  // 1. Try Gmail SMTP (only in local development; skip on Render to prevent connection hang)
   let sent = false;
-  if (SMTP_HOST) {
+  const isRender = process.env.RENDER === 'true';
+  if (SMTP_HOST && !isRender) {
     console.log(`[Email Service] Attempting SMTP (Gmail)...`);
     sent = await trySendMail({
       host: SMTP_HOST,
