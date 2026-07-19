@@ -9,9 +9,9 @@ const __dirname = path.dirname(__filename);
 
 async function sendEmail({ to, subject, htmlContent, orderId }) {
   const { 
-    RESEND_HOST, RESEND_PORT, RESEND_USER, RESEND_PASS, RESEND_FROM,
-    SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM,
-    RESEND_API_KEY
+    BREVO_API_KEY,
+    BREVO_SMTP_HOST, BREVO_SMTP_PORT, BREVO_SMTP_USER, BREVO_SMTP_PASS,
+    SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM
   } = process.env;
 
   async function trySendMail({ host, port, user, pass, from }) {
@@ -65,83 +65,6 @@ async function sendEmail({ to, subject, htmlContent, orderId }) {
     }
   }
 
-  async function trySendResendHttp(apiKey) {
-    if (!apiKey) return false;
-    try {
-      console.log(`[Email Service] Attempting HTTP POST to Resend API send endpoint (to bypass Render SMTP blocks)...`);
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          from: 'Madurai Madasamy Idlypodi <onboarding@resend.dev>',
-          to: [to],
-          subject: subject,
-          html: htmlContent
-        })
-      });
-
-      const resData = await response.json();
-      if (response.ok) {
-        console.log(`[Email Service] Resend HTTP send success! ID:`, resData.id);
-        return true;
-      } else {
-        console.error(`[Email Service] Resend HTTP send failed:`, JSON.stringify(resData));
-        return false;
-      }
-    } catch (err) {
-      console.error(`[Email Service] Resend HTTP error:`, err);
-      return false;
-    }
-  }
-
-  async function trySendMailHttp({ user, pass, from }) {
-    if (!user || !pass) return false;
-    try {
-      console.log(`[Email Service] Attempting HTTP POST to Mailjet API send endpoint (to bypass Render SMTP blocks)...`);
-      const authToken = Buffer.from(`${user}:${pass}`).toString('base64');
-      const response = await fetch('https://api.mailjet.com/v3.1/send', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Basic ${authToken}`
-        },
-        body: JSON.stringify({
-          Messages: [
-            {
-              From: {
-                Email: from || 'maduraimadasamyidlipodi@gmail.com',
-                Name: 'Madurai Madasamy Idlypodi'
-              },
-              To: [
-                {
-                  Email: to,
-                  Name: 'Customer/Admin'
-                }
-              ],
-              Subject: subject,
-              HTMLPart: htmlContent
-            }
-          ]
-        })
-      });
-
-      const resData = await response.json();
-      if (response.ok) {
-        console.log(`[Email Service] HTTP send success! Message ID:`, resData.Messages?.[0]?.To?.[0]?.MessageID || 'success');
-        return true;
-      } else {
-        console.error(`[Email Service] HTTP send failed with status ${response.status}:`, JSON.stringify(resData));
-        return false;
-      }
-    } catch (err) {
-      console.error(`[Email Service] HTTP send error:`, err);
-      return false;
-    }
-  }
-
   async function trySendBrevoHttp(apiKey) {
     if (!apiKey) return false;
     try {
@@ -178,7 +101,7 @@ async function sendEmail({ to, subject, htmlContent, orderId }) {
     }
   }
 
-  // 1. Try Gmail SMTP first (using the working app password credentials)
+  // 1. Try Gmail SMTP (usually for local development)
   let sent = false;
   if (SMTP_HOST) {
     console.log(`[Email Service] Attempting SMTP (Gmail)...`);
@@ -191,35 +114,20 @@ async function sendEmail({ to, subject, htmlContent, orderId }) {
     });
   }
 
-  // 2. Try Brevo HTTP API (highly recommended for Render bypass)
-  const BREVO_API_KEY = process.env.BREVO_API_KEY;
+  // 2. Try Brevo HTTP API (highly recommended for Render/production environment)
   if (!sent && BREVO_API_KEY) {
     sent = await trySendBrevoHttp(BREVO_API_KEY);
   }
 
-  // 3. Try Resend HTTP API as fallback
-  if (!sent && RESEND_API_KEY) {
-    sent = await trySendResendHttp(RESEND_API_KEY);
-  }
-
-  // 4. Try Mailjet HTTP API next
-  if (!sent) {
-    sent = await trySendMailHttp({
-      user: RESEND_USER,
-      pass: RESEND_PASS,
-      from: RESEND_FROM
-    });
-  }
-
-  // 5. Try Mailjet SMTP fallback
-  if (!sent && RESEND_HOST) {
-    console.log(`[Email Service] Fallback to SMTP (Mailjet)...`);
+  // 3. Try Brevo SMTP (as alternative)
+  if (!sent && BREVO_SMTP_HOST) {
+    console.log(`[Email Service] Fallback to SMTP (Brevo)...`);
     sent = await trySendMail({
-      host: RESEND_HOST,
-      port: RESEND_PORT,
-      user: RESEND_USER,
-      pass: RESEND_PASS,
-      from: RESEND_FROM
+      host: BREVO_SMTP_HOST,
+      port: BREVO_SMTP_PORT,
+      user: BREVO_SMTP_USER,
+      pass: BREVO_SMTP_PASS,
+      from: SMTP_FROM || "maduraimadasamyidlipodi@gmail.com"
     });
   }
 
