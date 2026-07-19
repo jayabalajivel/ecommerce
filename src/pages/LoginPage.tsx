@@ -36,8 +36,7 @@ export default function LoginPage({ onSuccess }: LoginPageProps) {
       await sendOtp(email.trim());
     } catch (err: any) {
       console.error("OTP Send Error:", err);
-      const message = err?.message || err?.error_description || (typeof err === 'object' ? JSON.stringify(err) : String(err));
-      setError(message || 'Failed to send verification code.');
+      setError(formatError(err, 'Failed to send verification code.'));
     } finally {
       setIsLoading(false);
     }
@@ -51,8 +50,7 @@ export default function LoginPage({ onSuccess }: LoginPageProps) {
       await verifyOtp(email.trim(), otp);
     } catch (err: any) {
       console.error("OTP Verify Error:", err);
-      const message = err?.message || err?.error_description || (typeof err === 'object' ? JSON.stringify(err) : String(err));
-      setError(message || 'OTP verification failed. Please check the code.');
+      setError(formatError(err, 'OTP verification failed. Please check the code.'));
     } finally {
       setIsLoading(false);
     }
@@ -72,11 +70,33 @@ export default function LoginPage({ onSuccess }: LoginPageProps) {
       if (oauthErr) throw oauthErr;
     } catch (err: any) {
       console.error("Google Sign-In Error:", err);
-      const message = err?.message || err?.error_description || (typeof err === 'object' ? JSON.stringify(err) : String(err));
-      setError(message || 'Google Sign-in failed');
+      setError(formatError(err, 'Google Sign-in failed'));
       setIsLoading(false);
     }
   };
+
+  function formatError(err: any, fallback: string): string {
+    if (!err) return fallback;
+    if (typeof err === 'string') return err;
+    
+    // Check common error fields
+    if (err.message && typeof err.message === 'string') return err.message;
+    if (err.error_description && typeof err.error_description === 'string') return err.error_description;
+    if (err.error && typeof err.error === 'string') return err.error;
+    
+    // Detailed object logging
+    try {
+      const keys = Object.keys(err);
+      if (keys.length > 0) {
+        return keys.map(k => `${k}: ${typeof err[k] === 'object' ? JSON.stringify(err[k]) : err[k]}`).join(', ');
+      }
+      
+      const str = err.toString ? err.toString() : '';
+      if (str && str !== '[object Object]') return str;
+    } catch (_) {}
+    
+    return fallback;
+  }
 
   return (
     <div
