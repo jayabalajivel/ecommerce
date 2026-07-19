@@ -332,7 +332,7 @@ export async function sendAdminNotificationEmail(order) {
               Hello Admin,
             </p>
             <p style="font-size: 15px; line-height: 1.5; color: #4a4a4a;">
-              A new order has been placed on SpiceKraft. Please verify the payment details and process the order.
+              A new order has been placed on Madurai Madasamy Idlypodi. Please verify the payment details and process the order.
             </p>
 
             <div style="background-color: #f9f9f9; border-radius: 12px; padding: 20px; margin: 25px 0; border: 1px solid #eeeeee; font-size: 14px; line-height: 1.6;">
