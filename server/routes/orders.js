@@ -274,6 +274,41 @@ router.put('/:id/status', requireAdmin, async (req, res) => {
     return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
   }
 
+  // Fetch current order status first to handle stock updates
+  const { data: currentOrder } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('id', req.params.id)
+    .single();
+
+  if (currentOrder && currentOrder.status !== 'cancelled' && status === 'cancelled') {
+    // Restock product quantities if order is being cancelled
+    if (Array.isArray(currentOrder.items)) {
+      for (const item of currentOrder.items) {
+        const pid = item.product_id || item.id;
+        if (pid) {
+          const { data: prod } = await supabase.from('products').select('stock_qty').eq('id', pid).single();
+          if (prod) {
+            await supabase.from('products').update({ stock_qty: prod.stock_qty + item.qty }).eq('id', pid);
+          }
+        }
+      }
+    }
+  } else if (currentOrder && currentOrder.status === 'cancelled' && status !== 'cancelled') {
+    // Re-deduct stock if un-cancelling order
+    if (Array.isArray(currentOrder.items)) {
+      for (const item of currentOrder.items) {
+        const pid = item.product_id || item.id;
+        if (pid) {
+          const { data: prod } = await supabase.from('products').select('stock_qty').eq('id', pid).single();
+          if (prod) {
+            await supabase.from('products').update({ stock_qty: Math.max(0, prod.stock_qty - item.qty) }).eq('id', pid);
+          }
+        }
+      }
+    }
+  }
+
   const { data, error } = await supabase
     .from('orders')
     .update({ status })

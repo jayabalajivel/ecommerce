@@ -42,8 +42,8 @@ export default function CompanyPage() {
   return (
     <div className="bg-background min-h-screen text-foreground selection:bg-accent/30 selection:text-foreground">
       <SEO 
-        title="Our Story - Madurai Madasamy Idlypodi" 
-        description="Discover the heritage of Madurai Madasamy Idlypodi, preserving authentic South Indian flavours since generations with pure ingredients." 
+        title="Our Story - Madurai Madasamy Idly Podi | Authentic Taste from Madurai" 
+        description="Discover the heritage of Madurai Madasamy Idly Podi, preserving authentic South Indian flavours with pure ingredients from Madurai, Tamil Nadu." 
       />
 
       {/* 1. Hero Section (Our Heritage) */}
@@ -61,11 +61,11 @@ export default function CompanyPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-12 gap-8 items-center">
           <div className="md:col-span-7 z-10 text-left">
             <div className="inline-flex items-center gap-1.5 text-brand-gold font-bold text-xs tracking-[0.25em] uppercase mb-4">
-              <Sparkles className="w-3.5 h-3.5" /> OUR HERITAGE
+              <Sparkles className="w-3.5 h-3.5" /> AUTHENTIC TASTE FROM MADURAI
             </div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-6 leading-tight font-serif text-brand-gold">
-              Traditional Taste of Madurai, <br />
-              <span className="text-white">Crafted with Love</span>
+              Madurai Madasamy Idly Podi<br />
+              <span className="text-white text-2xl sm:text-3xl block mt-2 font-sans font-normal">Traditional Taste, Crafted with Love</span>
             </h1>
             <p className="text-white/90 text-sm sm:text-base leading-relaxed max-w-xl mb-8">
               Since our beginning, Madurai Madasamy Idly Podi has been dedicated to preserving authentic South Indian flavours. Every product is handcrafted using carefully selected ingredients, traditional recipes, and uncompromising quality standards to bring the taste of home to every family.

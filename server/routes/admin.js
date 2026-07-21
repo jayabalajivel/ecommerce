@@ -94,7 +94,7 @@ router.get('/dashboard', requireAdmin, async (req, res) => {
 
   const stats = {
     total_orders: orders.length,
-    total_revenue: orders.reduce((s, o) => s + Number(o.total), 0),
+    total_revenue: orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + Number(o.total), 0),
     pending_orders: orders.filter(o => o.status === 'pending').length,
     processing_orders: orders.filter(o => o.status === 'processing').length,
     shipped_orders: orders.filter(o => o.status === 'shipped').length,

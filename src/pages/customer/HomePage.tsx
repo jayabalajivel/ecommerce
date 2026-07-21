@@ -77,8 +77,16 @@ export default function HomePage() {
   const homeSchema = [
     {
       "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Madurai Madasamy Idly Podi",
+      "alternateName": "Madurai Madasamy Idlipodi",
+      "url": "https://maduraimadasamyidlipodi.com",
+      "logo": "https://maduraimadasamyidlipodi.com/logo.jpg"
+    },
+    {
+      "@context": "https://schema.org",
       "@type": "WebSite",
-      "name": "Madurai Madasamy Idlypodi",
+      "name": "Madurai Madasamy Idly Podi",
       "url": "https://maduraimadasamyidlipodi.com",
       "potentialAction": {
         "@type": "SearchAction",
@@ -89,7 +97,7 @@ export default function HomePage() {
     {
       "@context": "https://schema.org",
       "@type": "Store",
-      "name": "Madurai Madasamy Idlypodi",
+      "name": "Madurai Madasamy Idly Podi",
       "image": "https://maduraimadasamyidlipodi.com/logo.jpg",
       "@id": "https://maduraimadasamyidlipodi.com",
       "url": "https://maduraimadasamyidlipodi.com",
@@ -99,7 +107,7 @@ export default function HomePage() {
         "streetAddress": "Madurai",
         "addressLocality": "Madurai",
         "addressRegion": "Tamil Nadu",
-        "postalCode": "625001",
+        "postalCode": "625017",
         "addressCountry": "IN"
       }
     },
@@ -107,17 +115,17 @@ export default function HomePage() {
       "@context": "https://schema.org",
       "@type": "Product",
       "name": "Madurai Madasamy Premium Idly Podi",
-      "image": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800",
-      "description": "Authentic homemade Madurai Style Idli Podi crafted with 100% natural ingredients, no preservatives, and traditional recipe.",
+      "image": "https://maduraimadasamyidlipodi.com/logo.jpg",
+      "description": "Authentic homemade Madurai Idly Podi crafted with 100% natural ingredients, no preservatives, and traditional Madurai recipe.",
       "brand": {
         "@type": "Brand",
-        "name": "Madurai Madasamy Idlypodi"
+        "name": "Madurai Madasamy Idly Podi"
       },
       "offers": {
         "@type": "Offer",
         "url": "https://maduraimadasamyidlipodi.com",
         "priceCurrency": "INR",
-        "price": "120",
+        "price": "113",
         "priceValidUntil": "2030-01-01",
         "availability": "https://schema.org/InStock",
         "itemCondition": "https://schema.org/NewCondition"
@@ -128,13 +136,13 @@ export default function HomePage() {
   return (
     <div>
       <SEO 
-        title="Premium Spices & Authentic Flavours" 
-        description="Hand-sourced from the finest farms across India. Over 35 years of heritage in every jar. Discover our premium collection of authentic spices."
+        title="Madurai Madasamy Idly Podi | Buy Authentic Homemade Idly Podi Online" 
+        description="Madurai Madasamy Idly Podi – Buy authentic homemade idly podi from Madurai. Traditional taste, premium quality, and fresh delivery across India."
         schema={homeSchema}
       />
       {/* Preload only the first Hero Image eagerly for faster initial page load */}
       <div className="hidden" aria-hidden="true">
-        <img src={hero1} fetchPriority="high" loading="eager" alt="" />
+        <img src={hero1} fetchPriority="high" loading="eager" alt="Madurai Madasamy Idly Podi Banner" />
       </div>
       {/* Hero */}
       <section className="relative overflow-hidden cursor-pointer">
@@ -147,13 +155,13 @@ export default function HomePage() {
         />
         <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/80 to-transparent" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
-          <p className="text-xs tracking-[0.25em] uppercase text-accent font-semibold mb-4">Taste of Tradition in Every spoon</p>
+          <p className="text-xs tracking-[0.25em] uppercase text-accent font-bold mb-4">Authentic Taste from Madurai</p>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Authentic SouthIndian,<br />
-            <span className="text-accent">Homemade Foods</span>
+            Madurai Madasamy Idly Podi
+            <span className="text-accent text-xl sm:text-2xl lg:text-3xl block mt-3 font-sans font-medium">Buy Authentic Homemade Idly Podi & Traditional Spices Online</span>
           </h1>
-          <p className="text-white/80 text-base sm:text-lg max-w-xl mb-8">
-            Hand-sourced from the finest farms.Heritage in every jar.
+          <p className="text-white/90 text-base sm:text-lg max-w-xl mb-8">
+            Enjoy the best idly podi in India! Hand-crafted in Madurai, Tamil Nadu with 100% natural ingredients, traditional roasting, and zero preservatives.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link to="/category/all" className="px-6 py-3 bg-accent text-accent-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-accent/20">

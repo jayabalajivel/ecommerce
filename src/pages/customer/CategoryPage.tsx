@@ -108,8 +108,8 @@ export default function CategoryPage() {
   return (
     <div>
       <SEO 
-        title={category?.name || categoryId || 'Category'} 
-        description={category?.description || `Explore our premium collection of ${category?.name || 'spices'}.`}
+        title={category?.name ? `${category.name} - Madurai Madasamy Idly Podi` : 'Madurai Madasamy Idly Podi Products'} 
+        description={category?.description ? `${category.description} Madurai Madasamy Idly Podi - Authentic taste from Madurai.` : `Explore our premium collection of ${category?.name || 'spices'} by Madurai Madasamy Idly Podi.`}
         schema={breadcrumbSchema}
       />
       {/* Category Hero */}

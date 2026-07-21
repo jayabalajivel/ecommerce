@@ -70,7 +70,7 @@ function AppInner() {
           <Link to="/" className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
             <img src={logoImg} alt="Madurai Madasamy Idlypodi Logo" className="h-8 w-8 sm:h-10 sm:w-10 object-cover rounded-md bg-white p-0.5" />
             <span className="font-bold text-white text-[10px] sm:text-base md:text-lg tracking-wide whitespace-nowrap" style={{ fontFamily: "'Playfair Display', serif" }}>
-              MADURAI MADASAMY IDLYPODI
+              MADURAI MADASAMY IDLY PODI
             </span>
           </Link>
  
