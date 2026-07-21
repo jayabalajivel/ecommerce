@@ -93,7 +93,7 @@ router.get('/dashboard', requireAdmin, async (req, res) => {
   const products = productsRes.data || [];
 
   const stats = {
-    total_orders: orders.length,
+    total_orders: orders.filter(o => o.status !== 'cancelled').length,
     total_revenue: orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + Number(o.total), 0),
     pending_orders: orders.filter(o => o.status === 'pending').length,
     processing_orders: orders.filter(o => o.status === 'processing').length,
