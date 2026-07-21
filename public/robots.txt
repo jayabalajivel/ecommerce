@@ -3,5 +3,8 @@ Allow: /
 Disallow: /admin/
 Disallow: /checkout/
 Disallow: /payment/
+Disallow: /login
+Disallow: /cart
+Disallow: /orders
 
 Sitemap: https://maduraimadasamyidlipodi.com/sitemap.xml
