@@ -158,7 +158,28 @@ async function sendEmail({ to, subject, htmlContent, orderId }) {
 }
 
 export async function sendReceiptEmail(order, customerEmail) {
-  const emailToUse = customerEmail || order.email || '';
+  let email = order.email || customerEmail || '';
+  let phone = '';
+  const notes = order.notes || '';
+  
+  if (!email) {
+    const emailMatch = notes.match(/\[Email:\s*([^\]]+)\]/i);
+    if (emailMatch) {
+      email = emailMatch[1].trim();
+    }
+  }
+  const phoneMatch = notes.match(/Phone:\s*([+\d\s-]+)/i);
+  if (phoneMatch) {
+    phone = phoneMatch[1].trim();
+  }
+  if (!phone && order.user_phone && !order.user_phone.includes('@')) {
+    phone = order.user_phone;
+  }
+  if (!email && order.user_phone && order.user_phone.includes('@')) {
+    email = order.user_phone;
+  }
+
+  const emailToUse = email || '';
   if (!emailToUse) {
     console.log(`[Email Service] No email provided for order ${order.id}. Skipping receipt email.`);
     return;
@@ -222,8 +243,10 @@ export async function sendReceiptEmail(order, customerEmail) {
                 </div>
                 <div style="flex: 1; min-width: 200px; margin-bottom: 10px;">
                   <strong style="color: #1a1a1a;">Deliver To:</strong><br>
-                  +91 ${order.user_phone}<br>
-                  ${order.address ? order.address.replace(/\n/g, '<br>') : 'N/A'}
+                  Name: ${order.customer_name}<br>
+                  Phone: ${phone ? '+91 ' + phone : 'N/A'}<br>
+                  ${email ? `Email: ${email}<br>` : ''}
+                  Address: ${order.address ? order.address.replace(/\n/g, '<br>') : 'N/A'}
                 </div>
               </div>
             </div>
@@ -290,6 +313,27 @@ export async function sendReceiptEmail(order, customerEmail) {
 export async function sendAdminNotificationEmail(order) {
   const adminEmail = (process.env.ADMIN_EMAIL || 'maduraimadasamyidlipodi@gmail.com').trim().toLowerCase();
 
+  let email = order.email || '';
+  let phone = '';
+  const notes = order.notes || '';
+  
+  if (!email) {
+    const emailMatch = notes.match(/\[Email:\s*([^\]]+)\]/i);
+    if (emailMatch) {
+      email = emailMatch[1].trim();
+    }
+  }
+  const phoneMatch = notes.match(/Phone:\s*([+\d\s-]+)/i);
+  if (phoneMatch) {
+    phone = phoneMatch[1].trim();
+  }
+  if (!phone && order.user_phone && !order.user_phone.includes('@')) {
+    phone = order.user_phone;
+  }
+  if (!email && order.user_phone && order.user_phone.includes('@')) {
+    email = order.user_phone;
+  }
+
   const itemsHtml = Array.isArray(order.items) 
     ? order.items.map(item => `
       <tr>
@@ -338,9 +382,8 @@ export async function sendAdminNotificationEmail(order) {
             <div style="background-color: #f9f9f9; border-radius: 12px; padding: 20px; margin: 25px 0; border: 1px solid #eeeeee; font-size: 14px; line-height: 1.6;">
               <strong style="color: #1a1a1a;">Customer Information:</strong><br>
               Name: <strong>${order.customer_name}</strong><br>
-              Email: ${order.email || 'N/A'}<br>
-              Customer Phone/Login: ${order.user_phone || 'N/A'}<br>
-              UPI Txn ID: <span style="font-weight: bold; color: #1b5e20;">${order.payment_ref}</span><br>
+              Email: ${email || 'N/A'}<br>
+              Phone: ${phone ? '+91 ' + phone : 'N/A'}<br>
               Delivery Address:<br>
               ${order.address ? order.address.replace(/\n/g, '<br>') : 'N/A'}
             </div>

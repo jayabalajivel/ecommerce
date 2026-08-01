@@ -74,13 +74,35 @@ export default function HomePage() {
     }
   }
 
+  const productSchemas = bestsellers.map(p => ({
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": p.name,
+    "image": p.image_url || "https://maduraimadasamyidlipodi.com/logo.jpg",
+    "description": p.description || `${p.name} - Authentic homemade spice blend by MaduraiMadasamyIdlypodi.`,
+    "sku": `PROD-${p.id}`,
+    "brand": {
+      "@type": "Brand",
+      "name": "MaduraiMadasamyIdlypodi"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": `https://maduraimadasamyidlipodi.com/category/${p.category_id}`,
+      "priceCurrency": "INR",
+      "price": p.price.toString(),
+      "priceValidUntil": "2030-01-01",
+      "availability": p.stock_qty > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "itemCondition": "https://schema.org/NewCondition"
+    }
+  }));
+
   const homeSchema = [
     {
       "@context": "https://schema.org",
       "@type": "Organization",
       "@id": "https://maduraimadasamyidlipodi.com/#organization",
-      "name": "Madurai Madasamy Idly Podi",
-      "alternateName": ["Madurai Madasamy Idlypodi", "Madurai Madasamy Idlipodi", "maduraimadasamyidlipodi"],
+      "name": "MaduraiMadasamyIdlypodi",
+      "alternateName": ["Madurai Madasamy Idly Podi", "Madurai Madasamy Idlypodi", "Madurai Madasamy Idlipodi", "maduraimadasamyidlipodi"],
       "url": "https://maduraimadasamyidlipodi.com",
       "logo": "https://maduraimadasamyidlipodi.com/logo.jpg"
     },
@@ -88,8 +110,8 @@ export default function HomePage() {
       "@context": "https://schema.org",
       "@type": "WebSite",
       "@id": "https://maduraimadasamyidlipodi.com/#website",
-      "name": "Madurai Madasamy Idly Podi",
-      "alternateName": ["Madurai Madasamy Idlypodi", "Madurai Madasamy Idlipodi", "maduraimadasamyidlipodi"],
+      "name": "MaduraiMadasamyIdlypodi",
+      "alternateName": ["Madurai Madasamy Idly Podi", "Madurai Madasamy Idlypodi", "Madurai Madasamy Idlipodi", "maduraimadasamyidlipodi"],
       "url": "https://maduraimadasamyidlipodi.com",
       "potentialAction": {
         "@type": "SearchAction",
@@ -100,7 +122,7 @@ export default function HomePage() {
     {
       "@context": "https://schema.org",
       "@type": "Store",
-      "name": "Madurai Madasamy Idly Podi",
+      "name": "MaduraiMadasamyIdlypodi",
       "image": "https://maduraimadasamyidlipodi.com/logo.jpg",
       "@id": "https://maduraimadasamyidlipodi.com/#store",
       "url": "https://maduraimadasamyidlipodi.com",
@@ -114,26 +136,7 @@ export default function HomePage() {
         "addressCountry": "IN"
       }
     },
-    {
-      "@context": "https://schema.org",
-      "@type": "Product",
-      "name": "Madurai Madasamy Premium Idly Podi",
-      "image": "https://maduraimadasamyidlipodi.com/logo.jpg",
-      "description": "Authentic homemade Madurai Idly Podi crafted with 100% natural ingredients, no preservatives, and traditional Madurai recipe.",
-      "brand": {
-        "@type": "Brand",
-        "name": "Madurai Madasamy Idly Podi"
-      },
-      "offers": {
-        "@type": "Offer",
-        "url": "https://maduraimadasamyidlipodi.com",
-        "priceCurrency": "INR",
-        "price": "113",
-        "priceValidUntil": "2030-01-01",
-        "availability": "https://schema.org/InStock",
-        "itemCondition": "https://schema.org/NewCondition"
-      }
-    }
+    ...productSchemas
   ];
 
   return (

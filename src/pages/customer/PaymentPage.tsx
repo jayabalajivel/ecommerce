@@ -210,18 +210,93 @@ export default function PaymentPage() {
   }
 
   if (placedOrder) {
+    let email = placedOrder.email || '';
+    let phone = '';
+    const notes = placedOrder.notes || '';
+    
+    if (!email) {
+      const emailMatch = notes.match(/\[Email:\s*([^\]]+)\]/i);
+      if (emailMatch) {
+        email = emailMatch[1].trim();
+      }
+    }
+    const phoneMatch = notes.match(/Phone:\s*([+\d\s-]+)/i);
+    if (phoneMatch) {
+      phone = phoneMatch[1].trim();
+    }
+    if (!phone && placedOrder.user_phone && !placedOrder.user_phone.includes('@')) {
+      phone = placedOrder.user_phone;
+    }
+    if (!email && placedOrder.user_phone && placedOrder.user_phone.includes('@')) {
+      email = placedOrder.user_phone;
+    }
+
     return (
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
         <SEO title="Order Successful" description="Your order has been placed successfully." />
         
+        <style dangerouslySetInnerHTML={{ __html: `
+          @media print {
+            body {
+              background: white !important;
+              color: black !important;
+              padding: 0 !important;
+              margin: 0 !important;
+              font-size: 11px !important;
+            }
+            header, footer, nav, .md\\:hidden, button, .bg-gray-50 {
+              display: none !important;
+            }
+            .max-w-3xl {
+              max-width: 100% !important;
+              padding: 0 !important;
+              margin: 0 !important;
+            }
+            .bg-card {
+              border: none !important;
+              box-shadow: none !important;
+              border-radius: 0 !important;
+            }
+            .bg-green-600 {
+              background: transparent !important;
+              color: black !important;
+              padding: 10px 0 !important;
+              border-bottom: 2px solid #333 !important;
+              border-radius: 0 !important;
+            }
+            .bg-green-600 h2, .bg-green-600 p {
+              color: black !important;
+            }
+            .bg-green-600 svg {
+              display: none !important;
+            }
+            .p-6, .md\\:p-8 {
+              padding: 10px 0 !important;
+            }
+            table {
+              margin-bottom: 10px !important;
+            }
+            tr, td, th {
+              padding: 4px 0 !important;
+            }
+            .border-t {
+              margin-top: 8px !important;
+              padding-top: 8px !important;
+            }
+            .space-y-3 > div {
+              padding: 2px 0 !important;
+            }
+          }
+        ` }} />
+
         <div className="bg-card border border-border rounded-3xl shadow-lg overflow-hidden">
           {/* Header */}
           <div className="bg-green-600 px-6 py-8 text-center text-white">
             <CheckCircle className="w-16 h-16 mx-auto mb-4 text-green-100" />
             <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>Payment Successful!</h2>
             <p className="text-green-100 text-lg">Your order has been placed successfully.</p>
-            {placedOrder.email && (
-              <p className="text-green-50/90 text-sm mt-1">A detailed receipt has been sent to <strong>{placedOrder.email}</strong></p>
+            {email && (
+              <p className="text-green-50/90 text-sm mt-1">A detailed receipt has been sent to <strong>{email}</strong></p>
             )}
           </div>
 
@@ -247,8 +322,8 @@ export default function PaymentPage() {
               <div className="md:text-right">
                 <p className="text-sm text-gray-500 uppercase tracking-wider mb-1">Billed To</p>
                 <p className="font-bold text-gray-900">{placedOrder.customer_name}</p>
-                <p className="text-sm">+91 {placedOrder.user_phone}</p>
-                {placedOrder.email && <p className="text-sm text-gray-600">{placedOrder.email}</p>}
+                <p className="text-sm"><strong>Phone:</strong> {phone ? '+91 ' + phone : 'N/A'}</p>
+                {email && <p className="text-sm text-gray-600"><strong>Email:</strong> {email}</p>}
                 <p className="text-sm max-w-[200px] md:ml-auto mt-2 leading-relaxed">{placedOrder.address}</p>
               </div>
             </div>
