@@ -342,6 +342,7 @@ export interface Order {
   user_phone: string;
   customer_name: string;
   email?: string;
+  notes?: string;
   items: OrderItem[];
   subtotal: number;
   delivery_fee: number;

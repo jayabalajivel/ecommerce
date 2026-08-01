@@ -40,11 +40,32 @@ export default function AdminOrders() {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
+    let email = order.email || '';
+    let phone = '';
+    const notes = order.notes || '';
+    
+    if (!email) {
+      const emailMatch = notes.match(/\[Email:\s*([^\]]+)\]/i);
+      if (emailMatch) {
+        email = emailMatch[1].trim();
+      }
+    }
+    const phoneMatch = notes.match(/Phone:\s*([+\d\s-]+)/i);
+    if (phoneMatch) {
+      phone = phoneMatch[1].trim();
+    }
+    if (!phone && order.user_phone && !order.user_phone.includes('@')) {
+      phone = order.user_phone;
+    }
+    if (!email && order.user_phone && order.user_phone.includes('@')) {
+      email = order.user_phone;
+    }
+
     const itemsHtml = Array.isArray(order.items) ? order.items.map((item: any) => `
       <tr>
-        <td style="padding: 10px 8px; border-bottom: 1px solid #ddd;"><strong>${item.name}</strong><br/><span style="color:#666; font-size: 12px;">${item.weight}</span></td>
-        <td style="padding: 10px 8px; border-bottom: 1px solid #ddd; text-align: center;">${item.qty}</td>
-        <td style="padding: 10px 8px; border-bottom: 1px solid #ddd; text-align: right;">Rs. ${item.subtotal}</td>
+        <td style="padding: 6px 8px; border-bottom: 1px solid #ddd;"><strong>${item.name}</strong><br/><span style="color:#666; font-size: 11px;">${item.weight}</span></td>
+        <td style="padding: 6px 8px; border-bottom: 1px solid #ddd; text-align: center;">${item.qty}</td>
+        <td style="padding: 6px 8px; border-bottom: 1px solid #ddd; text-align: right;">Rs. ${item.subtotal}</td>
       </tr>
     `).join('') : '';
 
@@ -53,48 +74,50 @@ export default function AdminOrders() {
         <head>
           <title>Courier Slip - ${order.id}</title>
           <style>
-            body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.5; color: #222; max-width: 800px; margin: 0 auto; padding: 30px; }
-            .header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #000; }
-            .logo { font-size: 28px; font-weight: 800; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
-            .row { display: flex; justify-content: space-between; margin-bottom: 40px; }
-            .col { flex: 1; background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 0 10px; }
+            body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4; color: #222; max-width: 800px; margin: 0 auto; padding: 15px; font-size: 13px; }
+            .header { text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 3px solid #000; }
+            .logo { font-size: 24px; font-weight: 800; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 1px; }
+            .row { display: flex; justify-content: space-between; margin-bottom: 15px; }
+            .col { flex: 1; background: #f9f9f9; padding: 10px 15px; border-radius: 8px; margin: 0 10px; }
             .col:first-child { margin-left: 0; }
             .col:last-child { margin-right: 0; }
-            h3 { margin-top: 0; color: #555; font-size: 12px; text-transform: uppercase; border-bottom: 1px solid #ddd; padding-bottom: 8px; letter-spacing: 1px; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
-            th { text-align: left; padding: 12px 8px; border-bottom: 2px solid #000; color: #333; text-transform: uppercase; font-size: 13px; }
-            .totals { width: 350px; margin-left: auto; background: #f9f9f9; padding: 20px; border-radius: 8px; }
-            .totals div { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
-            .totals .grand { font-size: 20px; font-weight: bold; border-top: 2px solid #000; padding-top: 15px; margin-top: 10px; }
-            .footer { text-align: center; font-size: 12px; color: #777; margin-top: 60px; border-top: 1px solid #ddd; padding-top: 20px; }
+            h3 { margin-top: 0; color: #555; font-size: 11px; text-transform: uppercase; border-bottom: 1px solid #ddd; padding-bottom: 6px; letter-spacing: 1px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+            th { text-align: left; padding: 8px 8px; border-bottom: 2px solid #000; color: #333; text-transform: uppercase; font-size: 12px; }
+            .totals { width: 320px; margin-left: auto; background: #f9f9f9; padding: 12px 18px; border-radius: 8px; }
+            .totals div { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
+            .totals .grand { font-size: 16px; font-weight: bold; border-top: 2px solid #000; padding-top: 8px; margin-top: 6px; }
+            .footer { text-align: center; font-size: 11px; color: #777; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px; }
             @media print { 
-              body { padding: 0; }
+              body { padding: 0; margin: 0; }
               .col { border: 1px solid #eee; }
+              .footer { page-break-inside: avoid; }
             }
           </style>
         </head>
         <body onload="window.print();">
           <div class="header">
-            <img src="${logoImg}" alt="Madurai Madasamy Idlypodi Logo" style="height: 70px; width: auto; object-fit: contain; margin-bottom: 10px; border-radius: 6px;" />
+            <img src="${logoImg}" alt="Madurai Madasamy Idlypodi Logo" style="height: 60px; width: auto; object-fit: contain; margin-bottom: 8px; border-radius: 6px;" />
             <div class="logo">MADURAI MADASAMY IDLYPODI</div>
-            <div style="font-size: 12px; color: #555; line-height: 1.5; margin-bottom: 10px;">
+            <div style="font-size: 11px; color: #555; line-height: 1.4; margin-bottom: 8px;">
               <strong>GST:</strong> 33DQVPM8304R1ZV | <strong>FSSAI:</strong> 22423579000351 <br/>
               <strong>Phone:</strong> 9843430304 | <strong>WhatsApp:</strong> 9843430304
             </div>
-            <div style="font-size: 14px; font-weight: bold; border-top: 1px dashed #ccc; padding-top: 8px;">Official Packing Slip</div>
-            <div style="margin-top: 6px; font-size: 14px;">Order ID: <strong>${order.id}</strong> &nbsp;|&nbsp; Date: <strong>${new Date(order.created_at).toLocaleDateString()}</strong></div>
+            <div style="font-size: 13px; font-weight: bold; border-top: 1px dashed #ccc; padding-top: 6px;">Official Packing Slip</div>
+            <div style="margin-top: 4px; font-size: 13px;">Order ID: <strong>${order.id}</strong> &nbsp;|&nbsp; Date: <strong>${new Date(order.created_at).toLocaleDateString()}</strong></div>
           </div>
           
           <div class="row">
             <div class="col">
               <h3>Ship To / Customer Details</h3>
-              <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">${order.customer_name || 'Customer'}</div>
-              <div style="margin-bottom: 5px;"><strong>Phone:</strong> +91 ${order.user_phone}</div>
+              <div style="font-size: 16px; font-weight: bold; margin-bottom: 4px;">${order.customer_name || 'Customer'}</div>
+              <div style="margin-bottom: 4px;"><strong>Phone:</strong> ${phone ? '+91 ' + phone : 'N/A'}</div>
+              ${email ? `<div style="margin-bottom: 4px;"><strong>Email:</strong> ${email}</div>` : ''}
               <div style="line-height: 1.4;"><strong>Address:</strong><br/>${order.address ? order.address.replace(/\\n/g, '<br/>') : 'No address provided'}</div>
             </div>
             <div class="col" style="flex: 0.7;">
               <h3>Payment Details</h3>
-              <div style="font-size: 16px; font-weight: bold; color: #059669; margin-bottom: 5px;">PAID VIA UPI</div>
+              <div style="font-size: 15px; font-weight: bold; color: #059669; margin-bottom: 4px;">PAID VIA UPI</div>
               <div><strong>Txn ID:</strong> ${order.payment_ref || 'N/A'}</div>
             </div>
           </div>
