@@ -78,15 +78,18 @@ export default function HomePage() {
     {
       "@context": "https://schema.org",
       "@type": "Organization",
+      "@id": "https://maduraimadasamyidlipodi.com/#organization",
       "name": "Madurai Madasamy Idly Podi",
-      "alternateName": "Madurai Madasamy Idlipodi",
+      "alternateName": ["Madurai Madasamy Idlypodi", "Madurai Madasamy Idlipodi", "maduraimadasamyidlipodi"],
       "url": "https://maduraimadasamyidlipodi.com",
       "logo": "https://maduraimadasamyidlipodi.com/logo.jpg"
     },
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
+      "@id": "https://maduraimadasamyidlipodi.com/#website",
       "name": "Madurai Madasamy Idly Podi",
+      "alternateName": ["Madurai Madasamy Idlypodi", "Madurai Madasamy Idlipodi", "maduraimadasamyidlipodi"],
       "url": "https://maduraimadasamyidlipodi.com",
       "potentialAction": {
         "@type": "SearchAction",
@@ -99,7 +102,7 @@ export default function HomePage() {
       "@type": "Store",
       "name": "Madurai Madasamy Idly Podi",
       "image": "https://maduraimadasamyidlipodi.com/logo.jpg",
-      "@id": "https://maduraimadasamyidlipodi.com",
+      "@id": "https://maduraimadasamyidlipodi.com/#store",
       "url": "https://maduraimadasamyidlipodi.com",
       "priceRange": "₹120 - ₹400",
       "address": {

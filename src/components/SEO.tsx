@@ -30,15 +30,18 @@ export function SEO({
     {
       '@context': 'https://schema.org',
       '@type': 'Organization',
+      '@id': 'https://maduraimadasamyidlipodi.com/#organization',
       'name': 'Madurai Madasamy Idly Podi',
-      'alternateName': 'Madurai Madasamy Idlipodi',
+      'alternateName': ['Madurai Madasamy Idlypodi', 'Madurai Madasamy Idlipodi', 'maduraimadasamyidlipodi'],
       'url': 'https://maduraimadasamyidlipodi.com',
       'logo': 'https://maduraimadasamyidlipodi.com/logo.jpg'
     },
     {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
-      'name': name,
+      '@id': 'https://maduraimadasamyidlipodi.com/#website',
+      'name': 'Madurai Madasamy Idly Podi',
+      'alternateName': ['Madurai Madasamy Idlypodi', 'Madurai Madasamy Idlipodi', 'maduraimadasamyidlipodi'],
       'url': 'https://maduraimadasamyidlipodi.com',
       'potentialAction': {
         '@type': 'SearchAction',
