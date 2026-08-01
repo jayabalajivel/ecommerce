@@ -139,8 +139,8 @@ export default function HomePage() {
   return (
     <div>
       <SEO 
-        title="Madurai Madasamy Idly Podi | Buy Authentic Homemade Idly Podi Online" 
-        description="Madurai Madasamy Idly Podi – Buy authentic homemade idly podi from Madurai. Traditional taste, premium quality, and fresh delivery across India."
+        title="MaduraiMadasamyIdlypodi | Buy Authentic Homemade Idly Podi & Spices Online" 
+        description="MaduraiMadasamyIdlypodi – Buy authentic homemade idly podi, garlic podi, and premium ground spices from Madurai. Traditional taste, natural ingredients, and free shipping."
         schema={homeSchema}
       />
       {/* Preload only the first Hero Image eagerly for faster initial page load */}

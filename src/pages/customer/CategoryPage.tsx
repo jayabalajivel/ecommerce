@@ -108,8 +108,8 @@ export default function CategoryPage() {
   return (
     <div>
       <SEO 
-        title={category?.name ? `${category.name} - Madurai Madasamy Idly Podi` : 'Madurai Madasamy Idly Podi Products'} 
-        description={category?.description ? `${category.description} Madurai Madasamy Idly Podi - Authentic taste from Madurai.` : `Explore our premium collection of ${category?.name || 'spices'} by Madurai Madasamy Idly Podi.`}
+        title={category?.name ? `${category.name} - MaduraiMadasamyIdlypodi` : 'MaduraiMadasamyIdlypodi Products'} 
+        description={category?.description ? `${category.description} MaduraiMadasamyIdlypodi - Authentic taste from Madurai.` : `Explore our premium collection of ${category?.name || 'spices'} by MaduraiMadasamyIdlypodi.`}
         schema={breadcrumbSchema}
       />
       {/* Category Hero */}

@@ -15,11 +15,11 @@ interface SEOProps {
 export function SEO({
   title,
   description,
-  name = 'Madurai Madasamy Idly Podi',
+  name = 'MaduraiMadasamyIdlypodi',
   type = 'website',
   image = 'https://maduraimadasamyidlipodi.com/logo.jpg',
   url = '',
-  keywords = 'Madurai Madasamy Idly Podi, Madurai Idly Podi, Best Idly Podi in India, Homemade Idly Podi, Madurai Madasamy Idlipodi, buy idli podi online, garlic idly podi, ellu podi, paruppu podi, karuveppilai podi, authentic south indian spices, Tamil Nadu idli podi',
+  keywords = 'idlipodi, idlypodi, idli podi, idly podi, MaduraiMadasamyIdlypodi, Madurai Madasamy Idly Podi, Madurai Idly Podi, Best Idly Podi in India, Homemade Idly Podi, Madurai Madasamy Idlipodi, buy idli podi online, garlic idly podi, ellu podi, paruppu podi, karuveppilai podi, authentic south indian spices, Tamil Nadu idli podi, chutney powder, milagai podi',
   schema,
 }: SEOProps) {
   // Always use the custom domain as the canonical URL base to avoid indexing Vercel deployment URLs
@@ -31,8 +31,8 @@ export function SEO({
       '@context': 'https://schema.org',
       '@type': 'Organization',
       '@id': 'https://maduraimadasamyidlipodi.com/#organization',
-      'name': 'Madurai Madasamy Idly Podi',
-      'alternateName': ['Madurai Madasamy Idlypodi', 'Madurai Madasamy Idlipodi', 'maduraimadasamyidlipodi'],
+      'name': 'MaduraiMadasamyIdlypodi',
+      'alternateName': ['Madurai Madasamy Idly Podi', 'Madurai Madasamy Idlypodi', 'Madurai Madasamy Idlipodi', 'maduraimadasamyidlipodi'],
       'url': 'https://maduraimadasamyidlipodi.com',
       'logo': 'https://maduraimadasamyidlipodi.com/logo.jpg'
     },
@@ -40,8 +40,8 @@ export function SEO({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       '@id': 'https://maduraimadasamyidlipodi.com/#website',
-      'name': 'Madurai Madasamy Idly Podi',
-      'alternateName': ['Madurai Madasamy Idlypodi', 'Madurai Madasamy Idlipodi', 'maduraimadasamyidlipodi'],
+      'name': 'MaduraiMadasamyIdlypodi',
+      'alternateName': ['Madurai Madasamy Idly Podi', 'Madurai Madasamy Idlypodi', 'Madurai Madasamy Idlipodi', 'maduraimadasamyidlipodi'],
       'url': 'https://maduraimadasamyidlipodi.com',
       'potentialAction': {
         '@type': 'SearchAction',
@@ -53,7 +53,7 @@ export function SEO({
 
   const jsonLdSchema = schema || defaultSchema;
 
-  const pageTitle = title.includes('Madurai Madasamy Idly Podi') ? title : `${title} | ${name}`;
+  const pageTitle = title.includes('MaduraiMadasamyIdlypodi') ? title : `${title} | ${name}`;
 
   return (
     <Helmet>
@@ -67,7 +67,7 @@ export function SEO({
       <meta property='og:type' content={type} />
       <meta property='og:title' content={pageTitle} />
       <meta property='og:description' content={description} />
-      <meta property='og:site_name' content="Madurai Madasamy Idly Podi" />
+      <meta property='og:site_name' content="MaduraiMadasamyIdlypodi" />
       {image && <meta property='og:image' content={image} />}
       <meta property='og:url' content={canonicalUrl} />
       

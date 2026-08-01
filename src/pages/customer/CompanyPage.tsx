@@ -42,8 +42,8 @@ export default function CompanyPage() {
   return (
     <div className="bg-background min-h-screen text-foreground selection:bg-accent/30 selection:text-foreground">
       <SEO 
-        title="Our Story - Madurai Madasamy Idly Podi | Authentic Taste from Madurai" 
-        description="Discover the heritage of Madurai Madasamy Idly Podi, preserving authentic South Indian flavours with pure ingredients from Madurai, Tamil Nadu." 
+        title="Our Story - MaduraiMadasamyIdlypodi | Authentic Taste from Madurai" 
+        description="Discover the heritage of MaduraiMadasamyIdlypodi, preserving authentic South Indian flavours with pure ingredients from Madurai, Tamil Nadu." 
       />
 
       {/* 1. Hero Section (Our Heritage) */}
