@@ -2,6 +2,7 @@ import { Router } from 'express';
 import supabase from '../lib/supabase.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import { sendReceiptEmail, sendAdminNotificationEmail } from '../lib/email.js';
+import { clearProductsCache } from './products.js';
 
 const router = Router();
 
@@ -209,6 +210,7 @@ router.post('/', requireAuth, async (req, res) => {
       .update({ stock_qty: product.stock_qty - item.qty })
       .eq('id', pid);
   }
+  clearProductsCache();
 
   // Trigger sending receipt email (asynchronously)
   sendReceiptEmail(order, email).catch(err => {

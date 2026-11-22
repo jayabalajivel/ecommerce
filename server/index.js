@@ -82,4 +82,16 @@ app.listen(PORT, () => {
   console.log(`   Supabase: ${process.env.SUPABASE_URL ? '✅ configured' : '❌ NOT configured'}\n`);
 });
 
+// Keepalive pinger for Render free tier (prevents service sleeping / 50s cold starts)
+const RENDER_URL = process.env.RENDER_EXTERNAL_URL;
+if (RENDER_URL) {
+  console.log(`[Keepalive] Scheduled self-ping for ${RENDER_URL} every 14 minutes`);
+  setInterval(() => {
+    fetch(`${RENDER_URL}/api/health`)
+      .then(r => r.json())
+      .then(d => console.log(`[Keepalive] Self-ping status:`, d.status))
+      .catch(err => console.error(`[Keepalive] Self-ping error:`, err.message));
+  }, 14 * 60 * 1000);
+}
+
 export default app;

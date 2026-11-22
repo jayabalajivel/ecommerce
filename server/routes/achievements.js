@@ -4,16 +4,33 @@ import { requireAdmin } from '../middleware/auth.js';
 
 const router = Router();
 
+let cachedAchievements = null;
+let cacheTime = 0;
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+function clearAchievementsCache() {
+  cachedAchievements = null;
+  cacheTime = 0;
+}
+
 /**
  * GET /api/achievements
  * Public — list achievements
  */
 router.get('/', async (_req, res) => {
+  res.set('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
+  if (cachedAchievements && (Date.now() - cacheTime < CACHE_TTL_MS)) {
+    return res.json({ achievements: cachedAchievements });
+  }
+
   const { data, error } = await supabase
     .from('achievements')
     .select('*')
     .order('sort_order');
   if (error) return res.status(500).json({ error: error.message });
+
+  cachedAchievements = data;
+  cacheTime = Date.now();
   res.json({ achievements: data });
 });
 
@@ -36,6 +53,7 @@ router.put('/:id', requireAdmin, async (req, res) => {
     .select()
     .single();
   if (error) return res.status(500).json({ error: error.message });
+  clearAchievementsCache();
   res.json({ achievement: data });
 });
 
@@ -56,6 +74,7 @@ router.post('/', requireAdmin, async (req, res) => {
     .single();
     
   if (error) return res.status(500).json({ error: error.message });
+  clearAchievementsCache();
   res.status(201).json({ achievement: data });
 });
 
@@ -72,6 +91,7 @@ router.delete('/:id', requireAdmin, async (req, res) => {
     .eq('id', achievementId);
     
   if (error) return res.status(500).json({ error: error.message });
+  clearAchievementsCache();
   res.json({ message: 'Achievement deleted successfully' });
 });
 

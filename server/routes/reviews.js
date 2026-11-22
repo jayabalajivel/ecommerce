@@ -4,6 +4,15 @@ import { requireAdmin } from '../middleware/auth.js';
 
 const router = Router();
 
+let cachedReviews = null;
+let cacheTime = 0;
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+function clearReviewsCache() {
+  cachedReviews = null;
+  cacheTime = 0;
+}
+
 /**
  * GET /api/reviews
  * Public — returns approved reviews. If admin session ID is present, it returns all reviews.
@@ -11,18 +20,31 @@ const router = Router();
 router.get('/', async (req, res) => {
   const { admin_session } = req.query;
   
+  // If not admin, use cache and Cache-Control
+  if (!admin_session) {
+    res.set('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
+    if (cachedReviews && (Date.now() - cacheTime < CACHE_TTL_MS)) {
+      return res.json({ reviews: cachedReviews });
+    }
+  }
+
   let query = supabase
     .from('store_reviews')
     .select('*')
     .order('created_at', { ascending: false });
 
-  // If not admin, only show approved reviews
   if (!admin_session) {
     query = query.eq('is_approved', true);
   }
 
   const { data, error } = await query;
   if (error) return res.status(500).json({ error: error.message });
+
+  if (!admin_session) {
+    cachedReviews = data;
+    cacheTime = Date.now();
+  }
+
   res.json({ reviews: data });
 });
 
@@ -69,6 +91,7 @@ router.put('/:id', requireAdmin, async (req, res) => {
     .single();
     
   if (error) return res.status(500).json({ error: error.message });
+  clearReviewsCache();
   res.json({ review: data, message: 'Review updated successfully' });
 });
 
@@ -85,6 +108,7 @@ router.delete('/:id', requireAdmin, async (req, res) => {
     .eq('id', reviewId);
     
   if (error) return res.status(500).json({ error: error.message });
+  clearReviewsCache();
   res.json({ message: 'Review deleted successfully' });
 });
 

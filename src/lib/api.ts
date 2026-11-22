@@ -46,7 +46,46 @@ export const authApi = {
     request('/api/auth/logout', { method: 'POST' }),
 };
 
-// ─── Products ────────────────────────────────────────────────
+// ─── Products & Cache ─────────────────────────────────────────
+const CACHE_PREFIX = 'sk_cache_';
+
+function getLocalCache<T>(key: string, maxAgeMs = 15 * 60 * 1000): T | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(CACHE_PREFIX + key);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (Date.now() - parsed.timestamp > maxAgeMs) return null;
+    return parsed.data as T;
+  } catch {
+    return null;
+  }
+}
+
+function setLocalCache<T>(key: string, data: T): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(
+      CACHE_PREFIX + key,
+      JSON.stringify({ data, timestamp: Date.now() })
+    );
+  } catch {}
+}
+
+function removeLocalCache(keyPrefix: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const toRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(CACHE_PREFIX + keyPrefix)) {
+        toRemove.push(k);
+      }
+    }
+    toRemove.forEach(k => localStorage.removeItem(k));
+  } catch {}
+}
+
 let categoriesCache: { categories: Category[] } | null = null;
 let productsCache: Record<string, { products: Product[] }> = {};
 
@@ -70,54 +109,75 @@ export const productsApi = {
   clearCache: () => {
     categoriesCache = null;
     productsCache = {};
+    removeLocalCache('products');
+    removeLocalCache('categories');
   },
 
   list: async (params?: { category?: string; search?: string }) => {
     const qs = new URLSearchParams(params as Record<string, string>).toString();
     const cacheKey = qs || 'all';
+
+    // 1. In-memory check
     if (productsCache[cacheKey]) {
       return productsCache[cacheKey];
     }
+
+    // 2. LocalStorage check (instant Stale-While-Revalidate)
+    const local = getLocalCache<{ products: Product[] }>(`products_${cacheKey}`);
+    if (local) {
+      productsCache[cacheKey] = local;
+      // Background revalidation
+      request<{ products: Product[] }>(`/api/products${qs ? '?' + qs : ''}`)
+        .then(fresh => {
+          productsCache[cacheKey] = fresh;
+          setLocalCache(`products_${cacheKey}`, fresh);
+        })
+        .catch(() => {});
+      return local;
+    }
+
+    // 3. Network fetch
     const res = await request<{ products: Product[] }>(`/api/products${qs ? '?' + qs : ''}`);
     productsCache[cacheKey] = res;
-    
-    if (res.products) {
-      res.products.forEach(p => {
-        if (p.image_url) {
-          preloadImage(getOptimizedImg(p.image_url, 400, 300));
-        }
-      });
-    }
-    
+    setLocalCache(`products_${cacheKey}`, res);
     return res;
   },
 
   categories: async () => {
+    // 1. In-memory check
     if (categoriesCache) {
       return categoriesCache;
     }
+
+    // 2. LocalStorage check (instant Stale-While-Revalidate)
+    const local = getLocalCache<{ categories: Category[] }>('categories');
+    if (local) {
+      categoriesCache = local;
+      // Background revalidation
+      request<{ categories: Category[] }>('/api/products/categories')
+        .then(fresh => {
+          categoriesCache = fresh;
+          setLocalCache('categories', fresh);
+        })
+        .catch(() => {});
+      return local;
+    }
+
+    // 3. Network fetch
     const res = await request<{ categories: Category[] }>('/api/products/categories');
     categoriesCache = res;
-    
-    if (res.categories) {
-      res.categories.forEach(c => {
-        if (c.image_url) {
-          preloadImage(getOptimizedImg(c.image_url, 600, 450));
-        }
-      });
-    }
-    
+    setLocalCache('categories', res);
     return res;
   },
 
   getCachedList: (params?: { category?: string; search?: string }) => {
     const qs = new URLSearchParams(params as Record<string, string>).toString();
     const cacheKey = qs || 'all';
-    return productsCache[cacheKey] || null;
+    return productsCache[cacheKey] || getLocalCache<{ products: Product[] }>(`products_${cacheKey}`) || null;
   },
 
   getCachedCategories: () => {
-    return categoriesCache || null;
+    return categoriesCache || getLocalCache<{ categories: Category[] }>('categories') || null;
   },
   
   createCategory: async (data: Partial<Category>) => {
@@ -261,49 +321,84 @@ export const adminApi = {
 
 // ─── Achievements ─────────────────────────────────────────────
 export const achievementsApi = {
-  list: () => request<{ achievements: Achievement[] }>('/api/achievements'),
+  list: async () => {
+    const local = getLocalCache<{ achievements: Achievement[] }>('achievements');
+    if (local) {
+      request<{ achievements: Achievement[] }>('/api/achievements')
+        .then(fresh => setLocalCache('achievements', fresh))
+        .catch(() => {});
+      return local;
+    }
+    const res = await request<{ achievements: Achievement[] }>('/api/achievements');
+    setLocalCache('achievements', res);
+    return res;
+  },
   
-  create: (data: Partial<Achievement>) =>
-    request<{ achievement: Achievement }>('/api/achievements', {
+  create: async (data: Partial<Achievement>) => {
+    removeLocalCache('achievements');
+    return request<{ achievement: Achievement }>('/api/achievements', {
       method: 'POST',
       body: JSON.stringify(data),
-    }),
+    });
+  },
 
-  update: (id: number, data: Partial<Achievement>) =>
-    request<{ achievement: Achievement }>(`/api/achievements/${id}`, {
+  update: async (id: number, data: Partial<Achievement>) => {
+    removeLocalCache('achievements');
+    return request<{ achievement: Achievement }>(`/api/achievements/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
-    }),
+    });
+  },
 
-  delete: (id: number) =>
-    request<{ message: string }>(`/api/achievements/${id}`, {
+  delete: async (id: number) => {
+    removeLocalCache('achievements');
+    return request<{ message: string }>(`/api/achievements/${id}`, {
       method: 'DELETE',
-    }),
+    });
+  },
 };
 
 // ─── Reviews ──────────────────────────────────────────────────
 export const reviewsApi = {
-  list: (admin_session?: string) => {
+  list: async (admin_session?: string) => {
     const qs = admin_session ? `?admin_session=${admin_session}` : '';
-    return request<{ reviews: StoreReview[] }>(`/api/reviews${qs}`);
+    if (admin_session) {
+      return request<{ reviews: StoreReview[] }>(`/api/reviews${qs}`);
+    }
+    const local = getLocalCache<{ reviews: StoreReview[] }>('reviews');
+    if (local) {
+      request<{ reviews: StoreReview[] }>('/api/reviews')
+        .then(fresh => setLocalCache('reviews', fresh))
+        .catch(() => {});
+      return local;
+    }
+    const res = await request<{ reviews: StoreReview[] }>('/api/reviews');
+    setLocalCache('reviews', res);
+    return res;
   },
   
-  create: (data: Partial<StoreReview>) =>
-    request<{ review: StoreReview; message: string }>('/api/reviews', {
+  create: async (data: Partial<StoreReview>) => {
+    removeLocalCache('reviews');
+    return request<{ review: StoreReview; message: string }>('/api/reviews', {
       method: 'POST',
       body: JSON.stringify(data),
-    }),
+    });
+  },
 
-  update: (id: number, data: Partial<StoreReview>) =>
-    request<{ review: StoreReview; message: string }>(`/api/reviews/${id}`, {
+  update: async (id: number, data: Partial<StoreReview>) => {
+    removeLocalCache('reviews');
+    return request<{ review: StoreReview; message: string }>(`/api/reviews/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
-    }),
+    });
+  },
 
-  delete: (id: number) =>
-    request<{ message: string }>(`/api/reviews/${id}`, {
+  delete: async (id: number) => {
+    removeLocalCache('reviews');
+    return request<{ message: string }>(`/api/reviews/${id}`, {
       method: 'DELETE',
-    }),
+    });
+  },
 };
 
 // ─── Types ──────────────────────────────────────────────────

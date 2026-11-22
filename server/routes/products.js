@@ -4,12 +4,42 @@ import { requireAuth, requireAdmin } from '../middleware/auth.js';
 
 const router = Router();
 
+// In-memory cache for ultra-fast response times (<1ms)
+const cache = new Map();
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+function getCache(key) {
+  const item = cache.get(key);
+  if (!item) return null;
+  if (Date.now() - item.time > CACHE_TTL_MS) {
+    cache.delete(key);
+    return null;
+  }
+  return item.data;
+}
+
+function setCache(key, data) {
+  cache.set(key, { data, time: Date.now() });
+}
+
+export function clearProductsCache() {
+  cache.clear();
+}
+
 /**
  * GET /api/products
  * Public — returns all active products with stock info
  */
 router.get('/', async (req, res) => {
+  res.set('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
   const { category, search } = req.query;
+  const cacheKey = `products_${category || 'all'}_${search || ''}`;
+
+  const cached = getCache(cacheKey);
+  if (cached) {
+    return res.json({ products: cached });
+  }
+
   let query = supabase
     .from('products')
     .select('*')
@@ -21,6 +51,8 @@ router.get('/', async (req, res) => {
 
   const { data, error } = await query;
   if (error) return res.status(500).json({ error: error.message });
+
+  setCache(cacheKey, data);
   res.json({ products: data });
 });
 
@@ -29,6 +61,14 @@ router.get('/', async (req, res) => {
  * Public — returns all categories
  */
 router.get('/categories', async (_req, res) => {
+  res.set('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
+  const cacheKey = 'categories_all';
+
+  const cached = getCache(cacheKey);
+  if (cached) {
+    return res.json({ categories: cached });
+  }
+
   const { data: categories, error } = await supabase
     .from('categories')
     .select('*')
@@ -50,6 +90,7 @@ router.get('/categories', async (_req, res) => {
     });
   }
 
+  setCache(cacheKey, categories);
   res.json({ categories });
 });
 
@@ -68,6 +109,7 @@ router.post('/categories', requireAdmin, async (req, res) => {
     .single();
     
   if (error) return res.status(500).json({ error: error.message });
+  clearProductsCache();
   res.status(201).json({ category: data });
 });
 
@@ -91,6 +133,7 @@ router.put('/categories/:id', requireAdmin, async (req, res) => {
     .single();
     
   if (error) return res.status(500).json({ error: error.message });
+  clearProductsCache();
   res.json({ category: data });
 });
 
@@ -102,7 +145,6 @@ router.delete('/categories/:id', requireAdmin, async (req, res) => {
   const categoryId = req.params.id;
   
   try {
-    // Find all products in this category
     const { data: productsInCat, error: fetchErr } = await supabase
       .from('products')
       .select('id')
@@ -113,14 +155,12 @@ router.delete('/categories/:id', requireAdmin, async (req, res) => {
     if (productsInCat && productsInCat.length > 0) {
       const productIds = productsInCat.map(p => p.id);
       
-      // Delete product edits first to avoid foreign key constraints
       const { error: editsDelErr } = await supabase
         .from('product_edits')
         .delete()
         .in('product_id', productIds);
       if (editsDelErr) throw editsDelErr;
 
-      // Delete products
       const { error: prodDelErr } = await supabase
         .from('products')
         .delete()
@@ -128,13 +168,13 @@ router.delete('/categories/:id', requireAdmin, async (req, res) => {
       if (prodDelErr) throw prodDelErr;
     }
 
-    // Now delete the category
     const { error: catDelErr } = await supabase
       .from('categories')
       .delete()
       .eq('id', categoryId);
     if (catDelErr) throw catDelErr;
 
+    clearProductsCache();
     res.json({ message: 'Category and its products deleted successfully' });
   } catch (err) {
     console.error('Delete category error:', err);
@@ -147,12 +187,20 @@ router.delete('/categories/:id', requireAdmin, async (req, res) => {
  * Public — single product
  */
 router.get('/:id', async (req, res) => {
+  res.set('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
+  const cacheKey = `product_${req.params.id}`;
+  const cached = getCache(cacheKey);
+  if (cached) {
+    return res.json({ product: cached });
+  }
+
   const { data, error } = await supabase
     .from('products')
     .select('*')
     .eq('id', req.params.id)
     .single();
   if (error) return res.status(404).json({ error: 'Product not found' });
+  setCache(cacheKey, data);
   res.json({ product: data });
 });
 
@@ -169,7 +217,6 @@ router.put('/:id', requireAdmin, async (req, res) => {
     session_id,
   } = req.body;
 
-  // Fetch current product for audit log
   const { data: current, error: fetchErr } = await supabase
     .from('products')
     .select('*')
@@ -213,18 +260,17 @@ router.put('/:id', requireAdmin, async (req, res) => {
     .single();
   if (updateErr) return res.status(500).json({ error: updateErr.message });
 
-  // Log edits
   if (editLogs.length > 0) {
     const { error: logErr } = await supabase.from('product_edits').insert(editLogs);
     if (logErr) console.error('Edit log error:', logErr);
   }
 
-  // Bump session action count
   if (session_id) {
     const { error: rpcErr } = await supabase.rpc('increment_session_actions', { session_uuid: session_id });
     if (rpcErr) console.error(rpcErr);
   }
 
+  clearProductsCache();
   res.json({ product: updated, edits_logged: editLogs.length, message: 'Product updated successfully' });
 });
 
@@ -239,7 +285,6 @@ router.patch('/:id/stock', requireAdmin, async (req, res) => {
   }
 
   const productId = parseInt(req.params.id);
-
   const { data: current } = await supabase.from('products').select('name, stock_qty').eq('id', productId).single();
 
   const { data, error } = await supabase
@@ -250,7 +295,6 @@ router.patch('/:id/stock', requireAdmin, async (req, res) => {
     .single();
   if (error) return res.status(500).json({ error: error.message });
 
-  // Log the stock change
   if (current && String(current.stock_qty) !== String(stock_qty)) {
     await supabase.from('product_edits').insert({
       product_id: productId,
@@ -263,6 +307,7 @@ router.patch('/:id/stock', requireAdmin, async (req, res) => {
     });
   }
 
+  clearProductsCache();
   res.json({ product: data, message: 'Stock updated' });
 });
 
@@ -284,6 +329,7 @@ router.post('/', requireAdmin, async (req, res) => {
     .select()
     .single();
   if (error) return res.status(500).json({ error: error.message });
+  clearProductsCache();
   res.status(201).json({ product: data });
 });
 
@@ -295,20 +341,19 @@ router.delete('/:id', requireAdmin, async (req, res) => {
   const productId = parseInt(req.params.id);
   
   try {
-    // Delete product edits first to avoid foreign key constraints
     const { error: editsDelErr } = await supabase
       .from('product_edits')
       .delete()
       .eq('product_id', productId);
     if (editsDelErr) throw editsDelErr;
 
-    // Delete product
     const { error: prodDelErr } = await supabase
       .from('products')
       .delete()
       .eq('id', productId);
     if (prodDelErr) throw prodDelErr;
 
+    clearProductsCache();
     res.json({ message: 'Product deleted successfully' });
   } catch (err) {
     console.error('Delete product error:', err);

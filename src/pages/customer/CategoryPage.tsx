@@ -114,7 +114,7 @@ export default function CategoryPage() {
       />
       {/* Category Hero */}
       <div className="relative h-44 overflow-hidden">
-        {category && <img loading="eager" src={getOptimizedImg(category.image_url, 1200, 300)} alt={category.name} className="w-full h-full object-cover" />}
+        {category && <img loading="eager" decoding="async" src={getOptimizedImg(category.image_url, 1200, 300)} alt={category.name} className="w-full h-full object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 to-transparent" />
         <div className="absolute inset-0 flex items-center px-4 sm:px-6 max-w-7xl mx-auto">
           <div>
@@ -172,7 +172,7 @@ export default function CategoryPage() {
               return (
                 <div key={product.id} className="bg-card rounded-2xl border border-border overflow-hidden hover:shadow-lg transition-all duration-300 group flex flex-col">
                   <div className="relative overflow-hidden flex-shrink-0">
-                    <img loading={index < 4 ? "eager" : "lazy"} src={getOptimizedImg(product.image_url, 400, 300)} alt={product.name} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500 bg-muted" />
+                    <img loading={index < 4 ? "eager" : "lazy"} decoding="async" src={getOptimizedImg(product.image_url, 400, 300)} alt={product.name} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500 bg-muted" />
                     {product.badge && (
                       <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full font-medium">{product.badge}</span>
                     )}
