@@ -3,7 +3,6 @@ import nodemailer from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import dns from 'dns';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,9 +16,9 @@ async function sendEmail({ to, subject, htmlContent, orderId }) {
 
   async function trySendGmailDirect({ user, pass, from }) {
     if (!user || !pass) return false;
-    const passClean = pass.replace(/\s+/g, '');
+    const passClean = pass.replace(/\s+/g, '').replace(/[\x22\x27]/g, '').trim();
     
-    // Method 1: direct SSL port 465 with explicit IPv4 dns lookup (fastest & most reliable on Render/cloud)
+    // Method 1: direct SSL port 465 (fastest & standard on Render/cloud)
     try {
       console.log(`[Email Service] Attempting Gmail direct SSL (smtp.gmail.com:465) to ${to}...`);
       const transporter = nodemailer.createTransport({
@@ -30,16 +29,9 @@ async function sendEmail({ to, subject, htmlContent, orderId }) {
           user: user,
           pass: passClean,
         },
-        tls: {
-          rejectUnauthorized: false,
-          minVersion: 'TLSv1.2'
-        },
-        lookup: (hostname, options, callback) => {
-          dns.lookup(hostname, { family: 4 }, callback);
-        },
-        connectionTimeout: 8000,
-        greetingTimeout: 8000,
-        socketTimeout: 10000
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 15000
       });
 
       const info = await transporter.sendMail({
@@ -54,7 +46,35 @@ async function sendEmail({ to, subject, htmlContent, orderId }) {
       console.error(`[Email Service] Gmail direct SSL failed:`, err.message);
     }
 
-    // Method 2: service 'gmail' fallback
+    // Method 2: TLS port 587
+    try {
+      console.log(`[Email Service] Attempting Gmail TLS (smtp.gmail.com:587) to ${to}...`);
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        auth: {
+          user: user,
+          pass: passClean,
+        },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 15000
+      });
+
+      const info = await transporter.sendMail({
+        from: from || `"Madurai Madasamy Idlypodi" <${user}>`,
+        to: to,
+        subject: subject,
+        html: htmlContent,
+      });
+      console.log(`[Email Service] Gmail TLS sent successfully to ${to}. Message ID: ${info.messageId}`);
+      return true;
+    } catch (err) {
+      console.error(`[Email Service] Gmail TLS failed:`, err.message);
+    }
+
+    // Method 3: service 'gmail' fallback
     try {
       console.log(`[Email Service] Attempting Gmail service transport to ${to}...`);
       const transporter = nodemailer.createTransport({
@@ -63,9 +83,9 @@ async function sendEmail({ to, subject, htmlContent, orderId }) {
           user: user,
           pass: passClean,
         },
-        connectionTimeout: 8000,
-        greetingTimeout: 8000,
-        socketTimeout: 10000
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 15000
       });
 
       const info = await transporter.sendMail({
@@ -129,18 +149,15 @@ async function sendEmail({ to, subject, htmlContent, orderId }) {
         secure: parseInt(port || '587') === 465,
         auth: {
           user: user,
-          pass: pass.replace(/\s+/g, ''),
+          pass: pass.replace(/\s+/g, '').replace(/[\x22\x27]/g, '').trim(),
         },
         tls: {
           rejectUnauthorized: false,
           minVersion: 'TLSv1.2'
         },
-        lookup: (hostname, options, callback) => {
-          dns.lookup(hostname, { family: 4 }, callback);
-        },
-        connectionTimeout: 8000,
-        greetingTimeout: 8000,
-        socketTimeout: 10000
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 15000
       });
 
       const info = await transporter.sendMail({

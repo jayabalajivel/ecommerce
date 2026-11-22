@@ -212,15 +212,23 @@ router.post('/', requireAuth, async (req, res) => {
   }
   clearProductsCache();
 
-  // Trigger sending receipt email (asynchronously)
-  sendReceiptEmail(order, email).catch(err => {
-    console.error(`[Email Service] Failed asynchronously for ${order.id}:`, err);
-  });
-
-  // Trigger sending admin notification email (asynchronously)
-  sendAdminNotificationEmail(order, email).catch(err => {
-    console.error(`[Admin Email Service] Failed asynchronously for ${order.id}:`, err);
-  });
+  // Dispatch customer receipt and admin notification emails
+  try {
+    const results = await Promise.allSettled([
+      sendReceiptEmail(order, email),
+      sendAdminNotificationEmail(order, email)
+    ]);
+    results.forEach((r, idx) => {
+      const type = idx === 0 ? 'Customer receipt' : 'Admin alert';
+      if (r.status === 'rejected') {
+        console.error(`[Order Email] ${type} for ${order.id} failed:`, r.reason);
+      } else {
+        console.log(`[Order Email] ${type} for ${order.id} completed successfully`);
+      }
+    });
+  } catch (emailErr) {
+    console.error(`[Order Email] Error during email dispatch:`, emailErr);
+  }
 
   res.status(201).json({ order, message: 'Order placed successfully. Awaiting payment verification.' });
 });

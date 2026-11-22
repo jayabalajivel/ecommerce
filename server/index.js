@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import nodemailer from 'nodemailer';
 import 'dotenv/config';
 
 import authRoutes from './routes/auth.js';
@@ -62,7 +63,84 @@ app.use('/api/reviews', reviewRoutes);
 
 // ─── Health check ─────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString(), env: process.env.NODE_ENV });
+  res.json({ status: 'ok', timestamp: new Date().toISOString(), env: process.env.NODE_ENV, version: '2.1' });
+});
+
+// ─── Live Email Diagnostic Endpoint ───────────────────────────
+app.get('/api/debug-email', async (_req, res) => {
+  const rawPass = process.env.SMTP_PASS || '';
+  const passClean = rawPass.replace(/\s+/g, '').replace(/[\x22\x27]/g, '').trim();
+
+  const report = {
+    env: {
+      SMTP_USER: process.env.SMTP_USER || null,
+      SMTP_PASS_EXISTS: !!rawPass,
+      SMTP_PASS_RAW_LEN: rawPass.length,
+      SMTP_PASS_CLEAN_LEN: passClean.length,
+      ADMIN_EMAIL: process.env.ADMIN_EMAIL || null,
+      NODE_ENV: process.env.NODE_ENV,
+      RENDER: process.env.RENDER || null
+    },
+    tests: []
+  };
+
+  // Test 1: Verify Port 465 SSL connection
+  try {
+    const t465 = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: { user: process.env.SMTP_USER, pass: passClean },
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 10000
+    });
+    await t465.verify();
+    report.tests.push({ method: 'Port 465 SSL (Direct)', success: true });
+  } catch (err) {
+    report.tests.push({ method: 'Port 465 SSL (Direct)', success: false, error: err.message });
+  }
+
+  // Test 2: Verify Port 587 TLS connection
+  try {
+    const t587 = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: { user: process.env.SMTP_USER, pass: passClean },
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 10000
+    });
+    await t587.verify();
+    report.tests.push({ method: 'Port 587 TLS (STARTTLS)', success: true });
+  } catch (err) {
+    report.tests.push({ method: 'Port 587 TLS (STARTTLS)', success: false, error: err.message });
+  }
+
+  // Test 3: Actual test email dispatch to Admin
+  if (process.env.SMTP_USER && passClean) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: { user: process.env.SMTP_USER, pass: passClean },
+        connectionTimeout: 10000
+      });
+      const info = await transporter.sendMail({
+        from: `"Diagnostic Test" <${process.env.SMTP_USER}>`,
+        to: process.env.ADMIN_EMAIL || process.env.SMTP_USER,
+        subject: `Live Server Email Test [${new Date().toLocaleTimeString('en-IN')}]`,
+        text: 'Hello from your live server! Gmail SMTP is fully connected and operational.'
+      });
+      report.tests.push({ method: 'Send Test Email', success: true, messageId: info.messageId });
+    } catch (err) {
+      report.tests.push({ method: 'Send Test Email', success: false, error: err.message });
+    }
+  }
+
+  res.json(report);
 });
 
 // ─── 404 handler ─────────────────────────────────────────────
