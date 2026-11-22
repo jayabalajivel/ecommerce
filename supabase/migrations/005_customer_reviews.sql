@@ -25,7 +25,7 @@ CREATE POLICY "Public insert reviews" ON store_reviews
 
 -- ── Seed: Reviews ──────────────────────────────────────────────
 INSERT INTO store_reviews (customer_name, rating, description, is_approved) VALUES
-  ('Anjali Sharma', 5, 'The spices are incredibly fresh! My biryani has never tasted better. Will definitely order again.', true),
-  ('Rahul Verma', 4, 'Great quality, especially the Kashmiri chilli powder. Delivery was a bit late but products are top notch.', true),
-  ('Priya K.', 5, 'Authentic flavours! The blended masalas save me so much time in the kitchen without compromising on taste.', true)
+  ('arun kumar', 5, 'The spices are incredibly fresh! My biryani has never tasted better. Will definitely order again.', true),
+  ('Rahul pandian', 4, 'Great quality, especially the Kashmiri chilli powder. Delivery was a bit late but products are top notch.', true),
+  ('Priya warrior', 5,'Authentic flavours! The blended masalas save me so much time in the kitchen without compromising on taste.', true)
 ON CONFLICT DO NOTHING;

@@ -68,7 +68,7 @@ app.use('/api/reviews', reviewRoutes);
 
 // ─── Health check ─────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString(), env: process.env.NODE_ENV, version: '2.2' });
+  res.json({ status: 'ok', timestamp: new Date().toISOString(), env: process.env.NODE_ENV, version: '2.3' });
 });
 
 // ─── Live Email Diagnostic Endpoint ───────────────────────────
@@ -80,69 +80,64 @@ app.get('/api/debug-email', async (_req, res) => {
     env: {
       SMTP_USER: process.env.SMTP_USER || null,
       SMTP_PASS_EXISTS: !!rawPass,
-      SMTP_PASS_RAW_LEN: rawPass.length,
-      SMTP_PASS_CLEAN_LEN: passClean.length,
       ADMIN_EMAIL: process.env.ADMIN_EMAIL || null,
+      RESEND_API_KEY_EXISTS: !!process.env.RESEND_API_KEY,
+      BREVO_API_KEY_EXISTS: !!process.env.BREVO_API_KEY,
       NODE_ENV: process.env.NODE_ENV,
       RENDER: process.env.RENDER || null
     },
     tests: []
   };
 
-  // Test 1: Verify Port 465 SSL connection
+  // Test 1: Vercel Serverless Gateway (Port 443 HTTPS)
+  try {
+    const gatewayUrl = process.env.VERCEL_EMAIL_BRIDGE_URL || 'https://maduraimadasamyidlipodi.com/api/send-email';
+    const gwRes = await fetch(gatewayUrl, { signal: AbortSignal.timeout(6000) });
+    const gwData = await gwRes.json();
+    report.tests.push({ method: 'Vercel Serverless Gateway (Port 443)', success: gwRes.ok, response: gwData });
+  } catch (err) {
+    report.tests.push({ method: 'Vercel Serverless Gateway (Port 443)', success: false, error: err.message });
+  }
+
+  // Test 2: Resend HTTP API (Port 443 HTTPS)
+  if (process.env.RESEND_API_KEY) {
+    try {
+      const resendRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY.trim()}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: process.env.RESEND_FROM || 'Madurai Madasamy Idlypodi <onboarding@resend.dev>',
+          to: [process.env.ADMIN_EMAIL || process.env.SMTP_USER || 'maduraimadasamyidlipodi@gmail.com'],
+          subject: 'Diagnostic Resend Test',
+          html: '<p>Resend HTTPS Port 443 working!</p>'
+        }),
+        signal: AbortSignal.timeout(6000)
+      });
+      const resendData = await resendRes.json();
+      report.tests.push({ method: 'Resend HTTP API (Port 443)', success: resendRes.ok, response: resendData });
+    } catch (err) {
+      report.tests.push({ method: 'Resend HTTP API (Port 443)', success: false, error: err.message });
+    }
+  }
+
+  // Test 3: Port 465 SSL connection
   try {
     const t465 = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 465,
       secure: true,
       auth: { user: process.env.SMTP_USER, pass: passClean },
-      connectionTimeout: 8000,
-      greetingTimeout: 8000,
-      socketTimeout: 10000
+      connectionTimeout: 4000,
+      greetingTimeout: 4000,
+      socketTimeout: 5000
     });
     await t465.verify();
     report.tests.push({ method: 'Port 465 SSL (Direct)', success: true });
   } catch (err) {
     report.tests.push({ method: 'Port 465 SSL (Direct)', success: false, error: err.message });
-  }
-
-  // Test 2: Verify Port 587 TLS connection
-  try {
-    const t587 = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      auth: { user: process.env.SMTP_USER, pass: passClean },
-      connectionTimeout: 8000,
-      greetingTimeout: 8000,
-      socketTimeout: 10000
-    });
-    await t587.verify();
-    report.tests.push({ method: 'Port 587 TLS (STARTTLS)', success: true });
-  } catch (err) {
-    report.tests.push({ method: 'Port 587 TLS (STARTTLS)', success: false, error: err.message });
-  }
-
-  // Test 3: Actual test email dispatch to Admin
-  if (process.env.SMTP_USER && passClean) {
-    try {
-      const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: { user: process.env.SMTP_USER, pass: passClean },
-        connectionTimeout: 10000
-      });
-      const info = await transporter.sendMail({
-        from: `"Diagnostic Test" <${process.env.SMTP_USER}>`,
-        to: process.env.ADMIN_EMAIL || process.env.SMTP_USER,
-        subject: `Live Server Email Test [${new Date().toLocaleTimeString('en-IN')}]`,
-        text: 'Hello from your live server! Gmail SMTP is fully connected and operational.'
-      });
-      report.tests.push({ method: 'Send Test Email', success: true, messageId: info.messageId });
-    } catch (err) {
-      report.tests.push({ method: 'Send Test Email', success: false, error: err.message });
-    }
   }
 
   res.json(report);

@@ -212,25 +212,28 @@ router.post('/', requireAuth, async (req, res) => {
   }
   clearProductsCache();
 
-  // Dispatch customer receipt and admin notification emails
-  try {
-    const results = await Promise.allSettled([
-      sendReceiptEmail(order, email),
-      sendAdminNotificationEmail(order, email)
-    ]);
-    results.forEach((r, idx) => {
-      const type = idx === 0 ? 'Customer receipt' : 'Admin alert';
-      if (r.status === 'rejected') {
-        console.error(`[Order Email] ${type} for ${order.id} failed:`, r.reason);
-      } else {
-        console.log(`[Order Email] ${type} for ${order.id} completed successfully`);
-      }
-    });
-  } catch (emailErr) {
-    console.error(`[Order Email] Error during email dispatch:`, emailErr);
-  }
-
+  // Respond immediately so user sees instant checkout confirmation (<150ms)
   res.status(201).json({ order, message: 'Order placed successfully. Awaiting payment verification.' });
+
+  // Dispatch customer receipt and admin notification emails asynchronously in background
+  (async () => {
+    try {
+      const results = await Promise.allSettled([
+        sendReceiptEmail(order, email),
+        sendAdminNotificationEmail(order, email)
+      ]);
+      results.forEach((r, idx) => {
+        const type = idx === 0 ? 'Customer receipt' : 'Admin alert';
+        if (r.status === 'rejected') {
+          console.error(`[Order Email] ${type} for ${order.id} failed:`, r.reason);
+        } else {
+          console.log(`[Order Email] ${type} for ${order.id} completed successfully`);
+        }
+      });
+    } catch (emailErr) {
+      console.error(`[Order Email] Error during email dispatch:`, emailErr);
+    }
+  })();
 });
 
 /**
