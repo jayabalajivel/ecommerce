@@ -1,3 +1,8 @@
+import dns from 'dns';
+try {
+  dns.setDefaultResultOrder('ipv4first');
+} catch {}
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -63,7 +68,7 @@ app.use('/api/reviews', reviewRoutes);
 
 // ─── Health check ─────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString(), env: process.env.NODE_ENV, version: '2.1' });
+  res.json({ status: 'ok', timestamp: new Date().toISOString(), env: process.env.NODE_ENV, version: '2.2' });
 });
 
 // ─── Live Email Diagnostic Endpoint ───────────────────────────

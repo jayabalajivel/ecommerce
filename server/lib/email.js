@@ -1,3 +1,8 @@
+import dns from 'dns';
+try {
+  dns.setDefaultResultOrder('ipv4first');
+} catch {}
+
 import 'dotenv/config';
 import nodemailer from 'nodemailer';
 import fs from 'fs';
