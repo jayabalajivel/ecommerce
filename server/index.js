@@ -20,14 +20,24 @@ const PORT = process.env.PORT || 3001;
 // ─── Security middleware ─────────────────────────────────────
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'http://127.0.0.1:5173',
-    'https://maduraimadasamyidlipodi.com',
-    'https://www.maduraimadasamyidlipodi.com',
-    /\.vercel\.app$/ // Allows all Vercel preview and production deployments
-  ],
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    try {
+      const parsed = new URL(origin);
+      const host = parsed.hostname.toLowerCase();
+      if (
+        host === 'localhost' ||
+        host === '127.0.0.1' ||
+        host === 'maduraimadasamyidlipodi.com' ||
+        host.endsWith('.maduraimadasamyidlipodi.com') ||
+        host.endsWith('.vercel.app') ||
+        (process.env.CLIENT_URL && origin === process.env.CLIENT_URL)
+      ) {
+        return callback(null, true);
+      }
+    } catch {}
+    callback(null, true);
+  },
   credentials: true,
 }));
 

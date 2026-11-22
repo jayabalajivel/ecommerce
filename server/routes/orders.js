@@ -212,12 +212,12 @@ router.post('/', requireAuth, async (req, res) => {
 
   // Trigger sending receipt email (asynchronously)
   sendReceiptEmail(order, email).catch(err => {
-    console.error(`[Email Service] Failed asynchronously:`, err);
+    console.error(`[Email Service] Failed asynchronously for ${order.id}:`, err);
   });
 
   // Trigger sending admin notification email (asynchronously)
-  sendAdminNotificationEmail(order).catch(err => {
-    console.error(`[Admin Email Service] Failed asynchronously:`, err);
+  sendAdminNotificationEmail(order, email).catch(err => {
+    console.error(`[Admin Email Service] Failed asynchronously for ${order.id}:`, err);
   });
 
   res.status(201).json({ order, message: 'Order placed successfully. Awaiting payment verification.' });

@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import nodemailer from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
@@ -14,28 +15,20 @@ async function sendEmail({ to, subject, htmlContent, orderId }) {
     SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM
   } = process.env;
 
-  async function trySendMail({ host, port, user, pass, from }) {
-    if (!host || !user || !pass) return false;
+  async function trySendGmailDirect({ user, pass, from }) {
+    if (!user || !pass) return false;
+    const passClean = pass.replace(/\s+/g, '');
+    
+    // Method 1: direct SSL port 465 with explicit IPv4 dns lookup (fastest & most reliable on Render/cloud)
     try {
-      const isGmail = host.toLowerCase().includes('gmail');
-      const passToUse = isGmail ? pass.replace(/\s+/g, '') : pass;
-      
-      const transportConfig = isGmail ? {
-        service: 'gmail',
+      console.log(`[Email Service] Attempting Gmail direct SSL (smtp.gmail.com:465) to ${to}...`);
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
         auth: {
           user: user,
-          pass: passToUse,
-        },
-        connectionTimeout: 5000,
-        greetingTimeout: 5000,
-        socketTimeout: 8000
-      } : {
-        host: host,
-        port: parseInt(port || '587'),
-        secure: parseInt(port || '587') === 465,
-        auth: {
-          user: user,
-          pass: passToUse,
+          pass: passClean,
         },
         tls: {
           rejectUnauthorized: false,
@@ -44,34 +37,56 @@ async function sendEmail({ to, subject, htmlContent, orderId }) {
         lookup: (hostname, options, callback) => {
           dns.lookup(hostname, { family: 4 }, callback);
         },
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
-        socketTimeout: 15000
-      };
+        connectionTimeout: 8000,
+        greetingTimeout: 8000,
+        socketTimeout: 10000
+      });
 
-      const transporter = nodemailer.createTransport(transportConfig);
-
-      const mailOptions = {
+      const info = await transporter.sendMail({
         from: from || `"Madurai Madasamy Idlypodi" <${user}>`,
         to: to,
         subject: subject,
         html: htmlContent,
-      };
-
-      console.log(`[Email Service] Attempting to send email via ${host}:${port} using user ${user}...`);
-      const info = await transporter.sendMail(mailOptions);
-      console.log(`[Email Service] Email sent successfully to ${to}. Message ID: ${info.messageId}`);
+      });
+      console.log(`[Email Service] Gmail SSL sent successfully to ${to}. Message ID: ${info.messageId}`);
       return true;
     } catch (err) {
-      console.error(`[Email Service] Failed to send email via ${host}:`, err);
-      return false;
+      console.error(`[Email Service] Gmail direct SSL failed:`, err.message);
     }
+
+    // Method 2: service 'gmail' fallback
+    try {
+      console.log(`[Email Service] Attempting Gmail service transport to ${to}...`);
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: user,
+          pass: passClean,
+        },
+        connectionTimeout: 8000,
+        greetingTimeout: 8000,
+        socketTimeout: 10000
+      });
+
+      const info = await transporter.sendMail({
+        from: from || `"Madurai Madasamy Idlypodi" <${user}>`,
+        to: to,
+        subject: subject,
+        html: htmlContent,
+      });
+      console.log(`[Email Service] Gmail service sent successfully to ${to}. Message ID: ${info.messageId}`);
+      return true;
+    } catch (err) {
+      console.error(`[Email Service] Gmail service failed:`, err.message);
+    }
+
+    return false;
   }
 
   async function trySendBrevoHttp(apiKey) {
     if (!apiKey) return false;
     try {
-      console.log(`[Email Service] Attempting HTTP POST to Brevo API send endpoint...`);
+      console.log(`[Email Service] Attempting Brevo HTTP API to ${to}...`);
       const response = await fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
         headers: {
@@ -99,39 +114,84 @@ async function sendEmail({ to, subject, htmlContent, orderId }) {
         return false;
       }
     } catch (err) {
-      console.error(`[Email Service] Brevo HTTP error:`, err);
+      console.error(`[Email Service] Brevo HTTP error:`, err.message);
       return false;
     }
   }
 
-  // 1. Try Gmail SMTP (only in local development; skip on Render to prevent connection hang)
+  async function trySendGenericSmtp({ host, port, user, pass, from }) {
+    if (!host || !user || !pass) return false;
+    try {
+      console.log(`[Email Service] Attempting generic SMTP via ${host}:${port}...`);
+      const transporter = nodemailer.createTransport({
+        host: host,
+        port: parseInt(port || '587'),
+        secure: parseInt(port || '587') === 465,
+        auth: {
+          user: user,
+          pass: pass.replace(/\s+/g, ''),
+        },
+        tls: {
+          rejectUnauthorized: false,
+          minVersion: 'TLSv1.2'
+        },
+        lookup: (hostname, options, callback) => {
+          dns.lookup(hostname, { family: 4 }, callback);
+        },
+        connectionTimeout: 8000,
+        greetingTimeout: 8000,
+        socketTimeout: 10000
+      });
+
+      const info = await transporter.sendMail({
+        from: from || `"Madurai Madasamy Idlypodi" <${user}>`,
+        to: to,
+        subject: subject,
+        html: htmlContent,
+      });
+      console.log(`[Email Service] Generic SMTP sent successfully to ${to}. Message ID: ${info.messageId}`);
+      return true;
+    } catch (err) {
+      console.error(`[Email Service] Generic SMTP failed (${host}):`, err.message);
+      return false;
+    }
+  }
+
   let sent = false;
-  const isRender = process.env.RENDER === 'true';
-  if (SMTP_HOST && !isRender) {
-    console.log(`[Email Service] Attempting SMTP (Gmail)...`);
-    sent = await trySendMail({
-      host: SMTP_HOST,
-      port: SMTP_PORT,
+
+  // 1. Primary: Gmail Direct SSL (works in localhost AND on Render cloud)
+  if (SMTP_USER && SMTP_PASS) {
+    sent = await trySendGmailDirect({
       user: SMTP_USER,
       pass: SMTP_PASS,
       from: SMTP_FROM
     });
   }
 
-  // 2. Try Brevo HTTP API (highly recommended for Render/production environment)
+  // 2. Secondary: Brevo HTTP API
   if (!sent && BREVO_API_KEY) {
     sent = await trySendBrevoHttp(BREVO_API_KEY);
   }
 
-  // 3. Try Brevo SMTP (as alternative)
-  if (!sent && BREVO_SMTP_HOST) {
-    console.log(`[Email Service] Fallback to SMTP (Brevo)...`);
-    sent = await trySendMail({
+  // 3. Tertiary: Brevo SMTP
+  if (!sent && BREVO_SMTP_HOST && BREVO_SMTP_USER && BREVO_SMTP_PASS) {
+    sent = await trySendGenericSmtp({
       host: BREVO_SMTP_HOST,
       port: BREVO_SMTP_PORT,
       user: BREVO_SMTP_USER,
       pass: BREVO_SMTP_PASS,
-      from: SMTP_FROM || "maduraimadasamyidlipodi@gmail.com"
+      from: SMTP_FROM || `Madurai Madasamy Idlypodi <${SMTP_USER || 'maduraimadasamyidlipodi@gmail.com'}>`
+    });
+  }
+
+  // 4. Custom SMTP if host != smtp.gmail.com
+  if (!sent && SMTP_HOST && !SMTP_HOST.includes('gmail')) {
+    sent = await trySendGenericSmtp({
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      user: SMTP_USER,
+      pass: SMTP_PASS,
+      from: SMTP_FROM
     });
   }
 
@@ -310,10 +370,10 @@ export async function sendReceiptEmail(order, customerEmail) {
   });
 }
 
-export async function sendAdminNotificationEmail(order) {
+export async function sendAdminNotificationEmail(order, customerEmail) {
   const adminEmail = (process.env.ADMIN_EMAIL || 'maduraimadasamyidlipodi@gmail.com').trim().toLowerCase();
 
-  let email = order.email || '';
+  let email = order.email || customerEmail || '';
   let phone = '';
   const notes = order.notes || '';
   
